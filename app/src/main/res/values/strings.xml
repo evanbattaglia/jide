@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Jide</string>
-    <string name="preferences_anki_uri">preferences_anki_uri</string>
+    <string name="preferences_anki_path">preferences_anki_path</string>
 </resources>

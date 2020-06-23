@@ -7,7 +7,6 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
 import android.view.WindowManager
-import kotlin.random.Random
 
 object WallpaperSetter {
     val TAG = "WallpaperSetter"
@@ -18,36 +17,44 @@ object WallpaperSetter {
         Pair("kang4ju4", "抗拒")
     )
 
-    private fun drawTextOnCanvas(canvas: Canvas, text: String, textColor: Int, gravity: Int) {
+    private fun drawTextOnCanvas(canvas: Canvas, text: String, textColor: Int, gravity: Int, pctHeight: Float) {
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         var testTextSize = 100f
         paint.textSize = testTextSize
-        paint.textAlign = Paint.Align.LEFT
+        paint.textAlign = Paint.Align.CENTER
         var baseline = -paint.ascent() // ascent() is negative
-        val neededWidth = (paint.measureText(text) + 0.5f).toInt()
-        val neededHeight = (baseline + paint.descent() + 0.5f).toInt()
-        // Adjust textsize to fit width/height
-        paint.textSize = testTextSize * Math.min(canvas.width / neededWidth, canvas.height / neededHeight)
+        val bounds = Rect()
+        paint.getTextBounds(text, 0, text.length, bounds)
+        val neededWidth = paint.measureText(text) + 0.5f
+        val neededHeight = baseline + bounds.bottom
+        // Adjust text size to fit width/height
+        paint.textSize = testTextSize * Math.min(canvas.width / neededWidth, canvas.height * pctHeight / neededHeight)
         paint.color =  textColor
 
+        Log.d(TAG, "oldneeded=${neededWidth},${neededHeight}, canvas=${canvas.width},${canvas.height}, canvasadjusted=${canvas.width},${canvas.height*pctHeight}, newneeded=${paint.measureText(text) + 0.5f},${(baseline + paint.descent() + 0.5f)}, newtextsize=${paint.textSize}")
+
         if (gravity == Gravity.BOTTOM) {
-            canvas.drawText(text, 0f, canvas.height - paint.descent(), paint)
+            paint.getTextBounds(text, 0, text.length, bounds)
+            // put bottom truly on the bottom, which depends on actual content
+            // (descenders like "y" and "g" make it go lower)
+            canvas.drawText(text, canvas.width/2f, canvas.height - bounds.bottom.toFloat(), paint)
         } else {
             // TOP
-            canvas.drawText(text,0f, -paint.ascent(), paint)
+            canvas.drawText(text,canvas.width/2f, -paint.ascent(), paint)
         }
     }
 
+    // TODO: fit bottom in bottom 1/3 of screen, fir top in top 25% of screen
     private fun textAsBitmap(context: Context, textUpper: String, textBottom: String) : Bitmap {
         val metrics = DisplayMetrics()
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        windowManager.defaultDisplay.getMetrics(metrics)
+        windowManager.defaultDisplay.getRealMetrics(metrics)
         val width = metrics.widthPixels
         val height = metrics.heightPixels
         val image = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(image)
-        drawTextOnCanvas(canvas, textUpper, Color.rgb(255,200,200), Gravity.TOP)
-        drawTextOnCanvas(canvas, textBottom, Color.rgb(200,200,255), Gravity.BOTTOM)
+        drawTextOnCanvas(canvas, textUpper, Color.rgb(255,200,200), Gravity.TOP, 0.25f)
+        drawTextOnCanvas(canvas, textBottom, Color.rgb(200,200,255), Gravity.BOTTOM, 0.4f)
         return image
     }
 
@@ -58,10 +65,11 @@ object WallpaperSetter {
         wm.setBitmap(bitmap, Rect(0, 0, bitmap.width, bitmap.height), true,
             WallpaperManager.FLAG_LOCK
         )
+        Log.i(TAG, "set wallpaper with: ${top}, ${bottom}")
     }
 
     fun setWallpaper(context: Context) {
-        val content = CONTENTS[Random.nextInt(CONTENTS.size)]
+        val content = Anki.getCard()
         setWallpaper(context, content.first, content.second)
     }
 

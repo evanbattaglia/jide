@@ -13,28 +13,10 @@ import java.io.FileOutputStream
 
 
 object Anki {
-    fun getCard(application: Application, uri: Uri) : Array<String> {
-        val inputStream = application.contentResolver.openInputStream(uri)
+    val ANKI_PATH = "/AnkiDroid/collection.anki2"
 
-        val file = File.createTempFile("sqlite", "")
-
-        val outputStream = FileOutputStream(file)
-        val buff = ByteArray(1024)
-        var read: Int
-        while (true) {
-            read = inputStream!!.read(buff, 0, buff.size)
-            if (read <= 0) {
-                break
-            }
-            outputStream.write(buff, 0, read)
-        }
-        inputStream.close()
-        outputStream.close()
-
-        return getCard(file.path)
-    }
-
-    fun getCard(path: String) : Array<String> {
+    fun getCard() : Pair<String, String> {
+        val path = Environment.getExternalStorageDirectory().absolutePath + ANKI_PATH
         val db = SQLiteDatabase.openDatabase(path, null, 0)
         val deckId = 1521405849755
 
@@ -43,7 +25,7 @@ object Anki {
         cursor.moveToFirst()
         val flds = cursor.getString(0).split(31.toChar())
         cursor.close()
-        return arrayOf(flds[4], flds[0])
+        return Pair(flds[4], flds[0])
 
         /*
         val openhelper = SQLiteOpenHelper(context, name, )
