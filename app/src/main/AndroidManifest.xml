@@ -3,6 +3,10 @@
     package="com.instructure.ebattaglia.jide">
 
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
+
+<!-- probably don't need this, but debugging -->
+    <uses-permission android:name="android.permission.WAKE_LOCK"></uses-permission>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -17,6 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <receiver android:name="com.instructure.ebattaglia.jide.AlarmReceiver"></receiver>
     </application>
 
 </manifest>
