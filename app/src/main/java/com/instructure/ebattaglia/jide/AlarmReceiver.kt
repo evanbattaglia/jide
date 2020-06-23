@@ -11,6 +11,6 @@ class AlarmReceiver : BroadcastReceiver() {
         Log.e("AlarmReceiver", "let's rock this party");
         // Put here YOUR code.
         Toast.makeText(context, "Alarm !!!!!!!!!!", Toast.LENGTH_LONG).show() // I don't think this actually works
-        WallpaperSetter.setWallpaper(context)
+        WallpaperSetter.setWallpaper(context!!)
     }
 }

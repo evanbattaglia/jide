@@ -24,7 +24,6 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.core:core-ktx:1.0.2'
@@ -32,4 +31,17 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+
+    def sqlite_version = "2.1.0"
+    implementation "androidx.sqlite:sqlite:$sqlite_version"
+    implementation "androidx.sqlite:sqlite-ktx:$sqlite_version"
+    // Implementation of the AndroidX SQLite interfaces via the Android framework APIs., not sure if need that
+    // implementation "androidx.sqlite:sqlite-framework:$sqlite_version"
+
+
+    def preference_version = "1.1.1"
+    // Java language implementation
+    implementation "androidx.preference:preference:$preference_version"
+    // Kotlin
+    implementation "androidx.preference:preference-ktx:$preference_version"
 }

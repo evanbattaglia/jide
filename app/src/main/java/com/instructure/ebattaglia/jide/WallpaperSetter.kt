@@ -51,14 +51,18 @@ object WallpaperSetter {
         return image
     }
 
-    fun setWallpaper(context: Context?) {
-        Log.e(TAG, "SETTING WALLPAPER!");
+    fun setWallpaper(context: Context, top: String, bottom: String) {
         val wm = WallpaperManager.getInstance(context)
-        val content = CONTENTS[Random.nextInt(CONTENTS.size)]
-        val bitmap = textAsBitmap(context!!, content.first, content.second)
+
+        val bitmap = textAsBitmap(context, top, bottom)
         wm.setBitmap(bitmap, Rect(0, 0, bitmap.width, bitmap.height), true,
             WallpaperManager.FLAG_LOCK
         )
+    }
+
+    fun setWallpaper(context: Context) {
+        val content = CONTENTS[Random.nextInt(CONTENTS.size)]
+        setWallpaper(context, content.first, content.second)
     }
 
 }
