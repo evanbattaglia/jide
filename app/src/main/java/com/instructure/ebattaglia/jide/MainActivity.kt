@@ -26,10 +26,9 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(context, AlarmReceiver::class.java)
         val pi = PendingIntent.getBroadcast(context, 0,  intent, PendingIntent.FLAG_UPDATE_CURRENT)
         val am = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        // TODO much later: set to setInexactRepeating() (although it is already pretty inexact) and
         // make interval a lot bigger
-        val interval = 10000
-        am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 5, 10000, pi)
+        val interval = 1 * /*hour*/ 60 * /*minute*/ 60000L
+        am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 5, interval, pi)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

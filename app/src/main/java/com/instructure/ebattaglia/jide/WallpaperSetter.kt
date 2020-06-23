@@ -31,8 +31,6 @@ object WallpaperSetter {
         paint.textSize = testTextSize * Math.min(canvas.width / neededWidth, canvas.height * pctHeight / neededHeight)
         paint.color =  textColor
 
-        Log.d(TAG, "oldneeded=${neededWidth},${neededHeight}, canvas=${canvas.width},${canvas.height}, canvasadjusted=${canvas.width},${canvas.height*pctHeight}, newneeded=${paint.measureText(text) + 0.5f},${(baseline + paint.descent() + 0.5f)}, newtextsize=${paint.textSize}")
-
         if (gravity == Gravity.BOTTOM) {
             paint.getTextBounds(text, 0, text.length, bounds)
             // put bottom truly on the bottom, which depends on actual content
@@ -58,19 +56,21 @@ object WallpaperSetter {
         return image
     }
 
-    fun setWallpaper(context: Context, top: String, bottom: String) {
+    fun setWallpaper(context: Context, top: String, bottom: String, lockScreen: Boolean) {
         val wm = WallpaperManager.getInstance(context)
 
         val bitmap = textAsBitmap(context, top, bottom)
         wm.setBitmap(bitmap, Rect(0, 0, bitmap.width, bitmap.height), true,
-            WallpaperManager.FLAG_LOCK
+            if (lockScreen) WallpaperManager.FLAG_LOCK else WallpaperManager.FLAG_SYSTEM
         )
-        Log.i(TAG, "set wallpaper with: ${top}, ${bottom}")
+        Log.i(TAG, "Setting wallpaper with: ${top}, ${bottom}")
     }
 
     fun setWallpaper(context: Context) {
-        val content = Anki.getCard()
-        setWallpaper(context, content.first, content.second)
+        var content = Anki.getCard()
+        setWallpaper(context, content.first, content.second, true)
+        content = Anki.getCard()
+        setWallpaper(context, content.first, content.second, false)
     }
 
 }
