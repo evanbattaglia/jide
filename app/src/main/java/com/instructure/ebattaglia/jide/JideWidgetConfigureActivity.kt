@@ -21,6 +21,7 @@ class JideWidgetConfigureActivity : Activity() {
         // TODO JideWidgetPreferences(context, appWidgetId).setWidgetText(widgetText)
 
         // It is the responsibility of the configuration activity to update the app widget
+        // TODO I'm not sure what this is all about
         val appWidgetManager = AppWidgetManager.getInstance(context)
         updateAppWidget(context, appWidgetManager, appWidgetId)
 
