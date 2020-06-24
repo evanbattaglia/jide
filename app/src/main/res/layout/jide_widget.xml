@@ -5,32 +5,45 @@
     android:padding="@dimen/widget_margin">
 
     <TextView
-        android:id="@+id/appwidget_text"
-        android:layout_width="wrap_content"
+        android:id="@+id/widget_text"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_margin="8dp"
         android:layout_marginBottom="8dp"
+        android:gravity="center"
         android:background="#09C"
         android:contentDescription="@string/appwidget_text"
         android:text="@string/appwidget_text"
         android:textColor="#ffffff"
-        android:textSize="24sp"
+        android:textSize="48sp"
         android:textStyle="bold" />
+    <!-- TODO make height max so can click anywhere in blue area, even if no text -->
+    <!--
+    TODO autosizing text. this doesn't really work ("EXAMPLE" gets turned into "EXAMPL\nE")
+    android:autoSizeTextType="uniform"
+    android:autoSizeMinTextSize="12sp"
+    android:autoSizeMaxTextSize="100sp"
+    android:autoSizeStepGranularity="2sp"
+    -->
 
     <Button
-        android:id="@+id/bad_button"
+        android:id="@+id/widget_bad_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Bad"
-        android:layout_below="@id/appwidget_text" />
+        android:layout_below="@id/widget_text"
+        android:backgroundTint="#B10E0E"
+        android:text="@string/widget_bad_button"
+        android:visibility="gone" />
 
     <Button
-        android:id="@+id/good_button"
+        android:id="@+id/widget_good_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Good"
-        android:layout_below="@id/appwidget_text"
-        android:layout_toRightOf="@id/bad_button"/>
+        android:layout_below="@id/widget_text"
+        android:layout_toEndOf="@id/widget_bad_button"
+        android:backgroundTint="#10CF12"
+        android:text="@string/widget_good_button"
+        android:visibility="gone" />
 
 </RelativeLayout>

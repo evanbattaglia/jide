@@ -3,17 +3,18 @@ package com.instructure.ebattaglia.jide
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
-import android.view.View
 import android.widget.RemoteViews
 import android.app.PendingIntent
-import androidx.core.view.accessibility.AccessibilityEventCompat.setAction
 import android.content.Intent
 import android.util.Log
-import android.R.attr.keySet
 import android.net.Uri
+import android.view.View
 
 
-private val MyOnClick = "myOnClickTag"
+// TODO put these somewhere else
+private val SHOW_ANSWER = "SHOW_ANSWER"
+private val REVIEW_GOOD = "REVIEW_GOOD"
+private val REVIEW_BAD = "REVIEW_BAD"
 
 /**
  * Implementation of App Widget functionality.
@@ -38,7 +39,7 @@ class JideWidget : AppWidgetProvider() {
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         // When the user deletes the widget, delete the preference associated with it.
         for (appWidgetId in appWidgetIds) {
-            deleteTitlePref(context, appWidgetId)
+            JideWidgetPreferences(context, appWidgetId).delete()
         }
     }
 
@@ -52,21 +53,34 @@ class JideWidget : AppWidgetProvider() {
 
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (MyOnClick == intent.action) {
-            val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
-            Log.e(TAG, "appWidgetId=$appWidgetId");
-            if (appWidgetId == -1) {
-              Log.e(TAG, "no appWidgetId provided");
-            } else {
-                val views = RemoteViews(context.packageName, R.layout.jide_widget)
-                val widgetText = AnkiApi.getDueCardField(context, "Pinyin")
-                views.setTextViewText(R.id.appwidget_text, widgetText)
-                // Instruct the widget manager to update the widget
-                val appWidgetManager = AppWidgetManager.getInstance(context)
-                appWidgetManager.updateAppWidget(appWidgetId, views)
-                Log.e(TAG, "onReceive update, you")
+        when (intent.action) {
+            SHOW_ANSWER -> {
+                val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
+                if (appWidgetId == -1) {
+                    Log.e(TAG, "no appWidgetId provided");
+                } else {
+                    val views = RemoteViews(context.packageName, R.layout.jide_widget)
+                    // TODO: check that state is correct
+                    // TODO: check that note ID has not changed (pass noteID in extra)
+                    val widgetText = AnkiApi.getDueCardField(context, "Hanzi")
+                    views.setTextViewText(R.id.widget_text, widgetText)
+                    views.setViewVisibility(R.id.widget_good_button, View.VISIBLE)
+                    views.setViewVisibility(R.id.widget_bad_button, View.VISIBLE)
+                    // TODO: update noteID in extra, somehow
+                    // Instruct the widget manager to update the widget
+                    val appWidgetManager = AppWidgetManager.getInstance(context)
+                    appWidgetManager.updateAppWidget(appWidgetId, views)
+                    JideWidgetPreferences(context, appWidgetId).setAnswerVisible(true)
+                }
+            }
+            REVIEW_GOOD -> {
+
+            }
+            REVIEW_BAD -> {
+
             }
         }
+
         super.onReceive(context, intent)
     }
 }
@@ -77,18 +91,18 @@ internal fun updateAppWidget(
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int
 ) {
-    //val widgetText = loadTitlePref(context, appWidgetId) // TODO get field name (and later, deck name) from prefs
+    //val widgetText2 = loadTitlePref(context, appWidgetId) // TODO get field name (and later, deck name) from prefs
     Log.e("you", "updating, you")
 
-    val widgetText = AnkiApi.getDueCardField(context, "Hanzi")
+    val widgetText = AnkiApi.getDueCardField(context, "Keyword") // TODO Keyword customizable
 
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.jide_widget)
-    views.setTextViewText(R.id.appwidget_text, widgetText)
+    views.setTextViewText(R.id.widget_text, widgetText)
 
     // EVAN ADDED
     val intent = Intent(context, JideWidget::class.java)
-    intent.action = MyOnClick
+    intent.action = SHOW_ANSWER
     Log.e("PUTTING", "putting appwidgetid $appWidgetId")
 
     intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -99,7 +113,7 @@ internal fun updateAppWidget(
 
     val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
-    views.setOnClickPendingIntent(R.id.bad_button, pendingIntent)
+    views.setOnClickPendingIntent(R.id.widget_text, pendingIntent)
 
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views)

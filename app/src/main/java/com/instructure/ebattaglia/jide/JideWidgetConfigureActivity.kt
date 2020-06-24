@@ -2,7 +2,6 @@ package com.instructure.ebattaglia.jide
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -19,7 +18,7 @@ class JideWidgetConfigureActivity : Activity() {
 
         // When the button is clicked, store the string locally
         val widgetText = appWidgetText.text.toString()
-        saveTitlePref(context, appWidgetId, widgetText)
+        // TODO JideWidgetPreferences(context, appWidgetId).setWidgetText(widgetText)
 
         // It is the responsibility of the configuration activity to update the app widget
         val appWidgetManager = AppWidgetManager.getInstance(context)
@@ -40,7 +39,7 @@ class JideWidgetConfigureActivity : Activity() {
         setResult(RESULT_CANCELED)
 
         setContentView(R.layout.jide_widget_configure)
-        appWidgetText = findViewById<View>(R.id.appwidget_text) as EditText
+        appWidgetText = findViewById<View>(R.id.widget_text) as EditText
         findViewById<View>(R.id.add_button).setOnClickListener(onClickListener)
 
         // Find the widget id from the intent.
@@ -57,32 +56,6 @@ class JideWidgetConfigureActivity : Activity() {
             finish()
             return
         }
-
-        appWidgetText.setText(loadTitlePref(this@JideWidgetConfigureActivity, appWidgetId))
     }
 
-}
-
-private const val PREFS_NAME = "com.instructure.ebattaglia.jide.JideWidget"
-private const val PREF_PREFIX_KEY = "appwidget_"
-
-// Write the prefix to the SharedPreferences object for this widget
-internal fun saveTitlePref(context: Context, appWidgetId: Int, text: String) {
-    val prefs = context.getSharedPreferences(PREFS_NAME, 0).edit()
-    prefs.putString(PREF_PREFIX_KEY + appWidgetId, text)
-    prefs.apply()
-}
-
-// Read the prefix from the SharedPreferences object for this widget.
-// If there is no preference saved, get the default from a resource
-internal fun loadTitlePref(context: Context, appWidgetId: Int): String {
-    val prefs = context.getSharedPreferences(PREFS_NAME, 0)
-    val titleValue = prefs.getString(PREF_PREFIX_KEY + appWidgetId, null)
-    return titleValue ?: context.getString(R.string.appwidget_text)
-}
-
-internal fun deleteTitlePref(context: Context, appWidgetId: Int) {
-    val prefs = context.getSharedPreferences(PREFS_NAME, 0).edit()
-    prefs.remove(PREF_PREFIX_KEY + appWidgetId)
-    prefs.apply()
 }
