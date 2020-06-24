@@ -10,8 +10,7 @@ import androidx.core.view.accessibility.AccessibilityEventCompat.setAction
 import android.content.Intent
 import android.util.Log
 import android.R.attr.keySet
-
-
+import android.net.Uri
 
 
 private val MyOnClick = "myOnClickTag"
@@ -60,7 +59,8 @@ class JideWidget : AppWidgetProvider() {
               Log.e(TAG, "no appWidgetId provided");
             } else {
                 val views = RemoteViews(context.packageName, R.layout.jide_widget)
-                views.setTextViewText(R.id.appwidget_text, "hey you")
+                val widgetText = AnkiApi.getDueCardField(context, "Pinyin")
+                views.setTextViewText(R.id.appwidget_text, widgetText)
                 // Instruct the widget manager to update the widget
                 val appWidgetManager = AppWidgetManager.getInstance(context)
                 appWidgetManager.updateAppWidget(appWidgetId, views)
@@ -93,8 +93,10 @@ internal fun updateAppWidget(
 
     intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
     intent.putExtra("KEY1", "hello world")
+    // Need to set data to make the intents different so that the same intent is not just updated,
+    // the appWidgetId extra data is not just overwritten
+    intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
 
-    Log.e("you1", "appwidgetid = $appWidgetId!!!")
     val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
 
     views.setOnClickPendingIntent(R.id.bad_button, pendingIntent)
