@@ -3,11 +3,8 @@
     package="com.instructure.ebattaglia.jide">
 
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-
-    <!-- not sure if this is needed or does anything... maybe if older version of android -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- not sure if this is needed or does anything... maybe if older version of android -->
     <uses-permission android:name="com.ichi2.anki.permission.READ_WRITE_DATABASE" />
-
 
     <application
         android:allowBackup="true"
@@ -16,6 +13,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <receiver android:name=".JideWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/jide_widget_info" />
+        </receiver>
+
+        <activity android:name=".JideWidgetConfigureActivity">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,7 +35,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <receiver android:name="com.instructure.ebattaglia.jide.AlarmReceiver"></receiver>
+
+        <receiver android:name=".AlarmReceiver" />
     </application>
 
 </manifest>
