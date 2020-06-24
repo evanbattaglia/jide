@@ -40,9 +40,14 @@ dependencies {
     // implementation "androidx.sqlite:sqlite-framework:$sqlite_version"
 
 
+    // TODO remove if not being used
     def preference_version = "1.1.1"
     // Java language implementation
     implementation "androidx.preference:preference:$preference_version"
     // Kotlin
     implementation "androidx.preference:preference-ktx:$preference_version"
+
+
+    implementation 'com.ichi2.anki:api:1.1.0alpha6'
+
 }

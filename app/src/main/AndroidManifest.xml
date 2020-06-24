@@ -3,8 +3,10 @@
     package="com.instructure.ebattaglia.jide">
 
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <!-- not sure if this is needed or does anything... maybe if older version of android -->
+    <uses-permission android:name="com.ichi2.anki.permission.READ_WRITE_DATABASE" />
 
 
     <application

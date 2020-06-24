@@ -11,12 +11,6 @@ import android.view.WindowManager
 object WallpaperSetter {
     val TAG = "WallpaperSetter"
 
-    val CONTENTS = arrayOf(
-        Pair("resist", " 抵 "),
-        Pair("retreat/but", " 却 "),
-        Pair("kang4ju4", "抗拒")
-    )
-
     private fun drawTextOnCanvas(canvas: Canvas, text: String, textColor: Int, gravity: Int, pctHeight: Float) {
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         var testTextSize = 100f
