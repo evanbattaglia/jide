@@ -18,7 +18,7 @@ object AnkiApi {
     const val EASE_1 = 1
     const val EASE_2 = 2
 
-    fun getCurrentDeckId(cr: ContentResolver) : Long {
+    private fun getCurrentDeckId(cr: ContentResolver) : Long {
         val cursor = cr.query(FlashCardsContract.Deck.CONTENT_SELECTED_URI, null, null, null, null)
         cursor.moveToFirst()
         val deckId = cursor.getLong(cursor.getColumnIndex(FlashCardsContract.Deck.DECK_ID))
@@ -26,7 +26,7 @@ object AnkiApi {
         return deckId
     }
 
-    fun getDueCardField(context: Context, fieldName: String) : String {
+    fun getDueCard(context: Context, frontFieldName: String, backFieldName: String) : Card {
         val cr = context.contentResolver
         var cursor: Cursor
 
@@ -36,6 +36,7 @@ object AnkiApi {
         cursor = cr.query(FlashCardsContract.ReviewInfo.CONTENT_URI, null, "limit=?,deckId=?", arrayOf("1", deckId.toString()), null)
         cursor.moveToFirst()
         val noteId = cursor.getLong(cursor.getColumnIndex(FlashCardsContract.ReviewInfo.NOTE_ID))
+        val cardOrd = cursor.getInt(cursor.getColumnIndex(FlashCardsContract.ReviewInfo.CARD_ORD))
         cursor.close()
         // TODO note not found
 
@@ -58,26 +59,31 @@ object AnkiApi {
             SEPARATOR_CHAR)
         cursor.close()
 
-        val fieldIndex = fieldNames.indexOf(fieldName)
-        if (fieldIndex == -1) {
-            return "<field not found, available fields: ${fieldNames.joinToString(", ")}>"
-        } else {
-            return fields[fieldIndex]
-        }
+        var fieldIndex = fieldNames.indexOf(frontFieldName)
+        val front =
+            if (fieldIndex == -1) {
+                // TODO better error handling
+                "<field $frontFieldName not found, available fields: ${fieldNames.joinToString(", ")}>"
+            } else {
+                fields[fieldIndex]
+            }
+
+        fieldIndex = fieldNames.indexOf(backFieldName)
+        val back =
+            if (fieldIndex == -1) {
+                "<field $backFieldName not found, available fields: ${fieldNames.joinToString(", ")}>"
+            } else {
+                fields[fieldIndex]
+            }
+
+        return Card(front, back, noteId, cardOrd)
     }
 
+    data class Card(val front: String, val back: String, val noteId: Long, val cardOrd: Int)
+
     // TODO: pass in note ID and card ord to make sure we're not out of sync
-    fun respondDueCard(context: Context, ease: Int, timeTaken: Long) {
+    fun respondCard(context: Context, noteId: Long, cardOrd: Int, ease: Int, timeTaken: Long) {
         val cr = context.contentResolver
-        val deckId = getCurrentDeckId(cr)
-
-        var cursor: Cursor
-        cursor = cr.query(FlashCardsContract.ReviewInfo.CONTENT_URI, null, "limit=?,deckId=?", arrayOf("1", deckId.toString()), null)
-        cursor.moveToFirst()
-        val noteId = cursor.getLong(cursor.getColumnIndex(FlashCardsContract.ReviewInfo.NOTE_ID))
-        val cardOrd = cursor.getLong(cursor.getColumnIndex(FlashCardsContract.ReviewInfo.CARD_ORD))
-        cursor.close()
-
         val values = ContentValues()
         values.put(FlashCardsContract.ReviewInfo.NOTE_ID, noteId)
         values.put(FlashCardsContract.ReviewInfo.CARD_ORD, cardOrd)

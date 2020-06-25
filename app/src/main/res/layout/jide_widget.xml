@@ -46,4 +46,14 @@
         android:text="@string/widget_good_button"
         android:visibility="gone" />
 
+    <Button
+        android:id="@+id/widget_back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/widget_text"
+        android:layout_toEndOf="@id/widget_good_button"
+        android:backgroundTint="#DDDDDD"
+        android:text="@string/widget_back_button"
+        android:visibility="gone" />
+
 </RelativeLayout>

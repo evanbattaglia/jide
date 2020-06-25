@@ -13,17 +13,19 @@ import android.widget.EditText
 class JideWidgetConfigureActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
     private lateinit var frontFieldText: EditText
+    private lateinit var backFieldText: EditText
     private var onClickListener = View.OnClickListener {
         val context = this@JideWidgetConfigureActivity
 
         // When the button is clicked, store the string locally
         val frontFieldText = frontFieldText.text.toString()
-        // TODO JideWidgetPreferences(context, appWidgetId).setWidgetText(widgetText)
+        val backFieldText = backFieldText.text.toString()
+        JideWidgetPreferences(context, appWidgetId).setNoteFieldNames(frontFieldText, backFieldText)
 
-        // It is the responsibility of the configuration activity to update the app widget
-        // TODO I'm not sure what this is all about
+        // Have to run this on our own the first time after configuring
         val appWidgetManager = AppWidgetManager.getInstance(context)
-        updateAppWidget(context, appWidgetManager, appWidgetId)
+        JideWidget.updateAppWidget(context, appWidgetManager, appWidgetId)
+        //updateAppWidget(context, appWidgetManager, appWidgetId)
 
         // Make sure we pass back the original appWidgetId
         val resultValue = Intent()
@@ -41,6 +43,7 @@ class JideWidgetConfigureActivity : Activity() {
 
         setContentView(R.layout.jide_widget_configure)
         frontFieldText = findViewById<View>(R.id.configure_frontfield) as EditText
+        backFieldText = findViewById<View>(R.id.configure_backfield) as EditText
         findViewById<View>(R.id.add_button).setOnClickListener(onClickListener)
 
         // Find the widget id from the intent.
