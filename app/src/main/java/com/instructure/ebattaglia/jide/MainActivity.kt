@@ -11,6 +11,8 @@ import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import android.Manifest
 import android.content.pm.PackageManager
+import android.preference.PreferenceManager
+import android.widget.ArrayAdapter
 import android.widget.Toast
 
 class MainActivity : AppCompatActivity() {
@@ -40,13 +42,8 @@ class MainActivity : AppCompatActivity() {
             requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), GET_PERMISSIONS)
         }
 
-        /*
-        TODO for when we show list of decks here
-        testButton.setOnClickListener {
-            // TODO need to put this somewhere
-            requestPermissions(arrayOf("com.ichi2.anki.permission.READ_WRITE_DATABASE"), GET_ANKI_PERMISSIONS)
-        }
-         */
+        // TODO check first if really need permissions
+        requestPermissions(arrayOf("com.ichi2.anki.permission.READ_WRITE_DATABASE"), GET_ANKI_PERMISSIONS)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
@@ -55,28 +52,50 @@ class MainActivity : AppCompatActivity() {
             GET_PERMISSIONS -> {
                 // If request is cancelled, the result arrays are empty.
                 if ((grantResults.isNotEmpty() &&
-                            grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    // Permission is granted. Continue the action or workflow
-                    // in your app.
+                            grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                ) {
+                    // Click "setup" button
+                    savePreferences()
                     WallpaperSetter.setWallpaper(applicationContext)
                     setAlarm()
                 } else {
-                    Toast.makeText(this, "Need permissions", Toast.LENGTH_LONG)
+                    Toast.makeText(this, "Need permissions", Toast.LENGTH_LONG).show()
                 }
             }
-            /*
-            TODO for when we show list of decks here
             GET_ANKI_PERMISSIONS -> {
                 if ((grantResults.isNotEmpty() &&
                             grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    // Permission is granted. Continue the action or workflow
-                    // in your app.
-                    getAnkiDeck()
+                    // Activity startup
+                    val decks : List<AnkiApi.Deck> = AnkiApi.getAllDecks(this)
+                    val spinnerAdapter = ArrayAdapter<AnkiApi.Deck>(this, android.R.layout.simple_spinner_dropdown_item, decks)
+                    wallpaper_deck_spinner.adapter = spinnerAdapter
+
+                    // TODO: the right way with ViewModel, yada yada yada
+                    val prefs = JideWallpaperPreferences(applicationContext)
+                    wallpaper_lockscreen_firstfield.setText(prefs.lockscreenFirstField())
+                    wallpaper_lockscreen_secondfield.setText(prefs.lockscreenSecondField())
+                    wallpaper_launcher_firstfield.setText(prefs.launcherFirstField())
+                    wallpaper_launcher_secondfield.setText(prefs.launcherSecondField())
+                    wallpaper_same_lockscreen_launcher_checkbox.isChecked = prefs.lockscreenLauncherSame()
+                    val deckId = prefs.deckId()
+                    wallpaper_deck_spinner.setSelection(decks.indexOfFirst { it.id == deckId })
                 } else {
-                    Toast.makeText(this, "Need permissions, you", Toast.LENGTH_LONG)
+                    Toast.makeText(this, "Need Anki permissions to get Deck list", Toast.LENGTH_LONG).show()
+                    finish()
                 }
             }
-             */
         }
+    }
+
+    private fun savePreferences() {
+        val deck = wallpaper_deck_spinner.selectedItem as AnkiApi.Deck
+        JideWallpaperPreferences(applicationContext).set(
+            deckId=deck.id,
+            lockscreenFirstField=wallpaper_lockscreen_firstfield.text.toString(),
+            lockscreenSecondField=wallpaper_lockscreen_secondfield.text.toString(),
+            lockscreenLauncherSame=wallpaper_same_lockscreen_launcher_checkbox.isChecked,
+            launcherFirstField=wallpaper_launcher_firstfield.text.toString(),
+            launcherSecondField=wallpaper_launcher_secondfield.text.toString()
+        )
     }
 }

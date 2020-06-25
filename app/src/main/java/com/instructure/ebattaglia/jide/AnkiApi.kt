@@ -59,14 +59,7 @@ object AnkiApi {
         cursor.close()
         // TODO model ID not found
 
-        cursor = cr.query(
-            Uri.withAppendedPath(FlashCardsContract.Model.CONTENT_URI, modelId.toString()),
-            arrayOf(FlashCardsContract.Model.FIELD_NAMES), null, null, null
-        )
-        cursor.moveToFirst()
-        val fieldNames = cursor.getString(cursor.getColumnIndex(FlashCardsContract.Model.FIELD_NAMES)).split(
-            SEPARATOR_CHAR)
-        cursor.close()
+        val fieldNames = getModelFieldNames(context, modelId)
 
         var fieldIndex = fieldNames.indexOf(frontFieldName)
         val front =
@@ -101,6 +94,19 @@ object AnkiApi {
 
         Log.i(TAG, "updating $noteId ($cardOrd) with ease $ease")
         cr.update(FlashCardsContract.ReviewInfo.CONTENT_URI, values, null, null)
+    }
+
+    fun getModelFieldNames(context: Context, modelId: Long) : List<String> {
+        val cr = context.contentResolver
+        val cursor = cr.query(
+            Uri.withAppendedPath(FlashCardsContract.Model.CONTENT_URI, modelId.toString()),
+            arrayOf(FlashCardsContract.Model.FIELD_NAMES), null, null, null
+        )
+        cursor.moveToFirst()
+        val fieldNames = cursor.getString(cursor.getColumnIndex(FlashCardsContract.Model.FIELD_NAMES)).split(
+            SEPARATOR_CHAR)
+        cursor.close()
+        return fieldNames
     }
 
 }

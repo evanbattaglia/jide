@@ -10,4 +10,10 @@
     <string name="widget_back_button"><![CDATA[<]]></string>
     <string name="configure_deck">Deck:</string>
     <string name="run_button">Setup Automatic Wallpaper</string>
+    <string name="wallpaper_deck">Deck:</string>
+    <string name="wallpaper_lockscreen_firstfield">Lockscreen First Field:</string>
+    <string name="wallpaper_lockscreen_secondfield">Lockscreen Second Field:</string>
+    <string name="wallpaper_launcher_firstfield">Launcher First Field:</string>
+    <string name="wallpaper_launcher_secondfield">Launcher Second Field:</string>
+    <string name="wallpaper_same_lockscreen_launcher">Always same note for lockscreen and launcher</string>
 </resources>

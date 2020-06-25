@@ -60,11 +60,29 @@ object WallpaperSetter {
         Log.i(TAG, "Setting wallpaper with: ${top}, ${bottom}")
     }
 
+    private fun fieldFromCard(cardFields: Map<String, String>, field: String) =
+        cardFields.getOrElse(field) {
+            // TODO why don't newlines work
+            return "can't find field \"$field\navail fields:\n${cardFields.keys.joinToString("\n")}"
+        }
+
     fun setWallpaper(context: Context) {
-        var content = Anki.getCard()
-        setWallpaper(context, content.first, content.second, true)
-        content = Anki.getCard()
-        setWallpaper(context, content.first, content.second, false)
+        val prefs = JideWallpaperPreferences(context)
+        var cardFields = Anki.getCardFields(context, prefs.deckId())
+
+        setWallpaper(context,
+            fieldFromCard(cardFields, prefs.lockscreenFirstField()),
+            fieldFromCard(cardFields, prefs.lockscreenSecondField()),
+            true)
+        Log.e("the card is", cardFields["Hanzi"])
+        if (!prefs.lockscreenLauncherSame()) {
+            cardFields = Anki.getCardFields(context, prefs.deckId())
+        }
+        Log.e("the card is2", cardFields["Hanzi"])
+        setWallpaper(context,
+            fieldFromCard(cardFields, prefs.launcherFirstField()),
+            fieldFromCard(cardFields, prefs.launcherSecondField()),
+            false)
     }
 
 }

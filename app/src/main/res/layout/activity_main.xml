@@ -6,13 +6,133 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/wallpaper_deck_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/wallpaper_deck"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Spinner
+        android:id="@+id/wallpaper_deck_spinner"
+        android:layout_width="409dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wallpaper_deck_label"
+        tools:layout_editor_absoluteX="-13dp" />
+
+    <TextView
+        android:id="@+id/wallpaper_lockscreen_firstfield_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/wallpaper_lockscreen_firstfield"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wallpaper_deck_spinner"
+        tools:layout_editor_absoluteX="63dp" />
+
+    <EditText
+        android:id="@+id/wallpaper_lockscreen_firstfield"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        tools:text="lockscreen first field"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wallpaper_lockscreen_firstfield_label"
+        tools:layout_editor_absoluteX="99dp" />
+
+    <TextView
+        android:id="@+id/wallpaper_lockscreen_secondfield_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/wallpaper_lockscreen_secondfield"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wallpaper_lockscreen_firstfield"
+        tools:layout_editor_absoluteX="168dp" />
+
+    <EditText
+        android:id="@+id/wallpaper_lockscreen_secondfield"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        tools:text="lockscreen second field"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wallpaper_lockscreen_secondfield_label"
+        tools:layout_editor_absoluteX="90dp" />
+
+    <CheckBox
+        android:id="@+id/wallpaper_same_lockscreen_launcher_checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/wallpaper_same_lockscreen_launcher"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wallpaper_lockscreen_secondfield"
+        tools:layout_editor_absoluteX="146dp" />
+
+    <TextView
+        android:id="@+id/wallpaper_launcher_firstfield_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/wallpaper_launcher_firstfield"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wallpaper_same_lockscreen_launcher_checkbox"
+        tools:layout_editor_absoluteX="164dp" />
+
+    <EditText
+        android:id="@+id/wallpaper_launcher_firstfield"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        tools:text="launcher first field"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wallpaper_launcher_firstfield_label"
+        tools:layout_editor_absoluteX="81dp" />
+
+    <TextView
+        android:id="@+id/wallpaper_launcher_secondfield_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/wallpaper_launcher_secondfield"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wallpaper_launcher_firstfield"
+        tools:layout_editor_absoluteX="154dp" />
+
+    <EditText
+        android:id="@+id/wallpaper_launcher_secondfield"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        tools:text="launcher second field"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wallpaper_launcher_secondfield_label"
+        tools:layout_editor_absoluteX="73dp" />
+
     <Button
         android:id="@+id/run_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/run_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/testButton"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/wallpaper_launcher_secondfield"
         tools:layout_editor_absoluteX="161dp" />
 
     <Button
@@ -20,7 +140,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Test Stuff"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:layout_editor_absoluteX="168dp" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
