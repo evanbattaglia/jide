@@ -9,10 +9,39 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:text="@string/configure" />
+        android:text="@string/configure"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/configure2" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/configure_frontfield"
+        android:textStyle="bold" />
 
     <EditText
-        android:id="@+id/widget_text"
+        android:id="@+id/configure_frontfield"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/configure_backfield"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/configure_backfield"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="text" />

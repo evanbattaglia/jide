@@ -13,6 +13,10 @@ class JideWidgetPreferences(val context: Context, appWidgetId: Int) {
         context.deleteSharedPreferences(sharedPrefsName)
     }
 
+    fun setNoteFieldNames(frontField: String, backField: String) {
+        
+    }
+
     fun isAnswerVisible() : Boolean {
         val prefs = context.getSharedPreferences(sharedPrefsName, 0)
         if (!prefs.contains(ANSWER_VISIBLE)) {

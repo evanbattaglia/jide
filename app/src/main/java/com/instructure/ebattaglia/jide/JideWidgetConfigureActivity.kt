@@ -12,12 +12,12 @@ import android.widget.EditText
  */
 class JideWidgetConfigureActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
-    private lateinit var appWidgetText: EditText
+    private lateinit var frontFieldText: EditText
     private var onClickListener = View.OnClickListener {
         val context = this@JideWidgetConfigureActivity
 
         // When the button is clicked, store the string locally
-        val widgetText = appWidgetText.text.toString()
+        val frontFieldText = frontFieldText.text.toString()
         // TODO JideWidgetPreferences(context, appWidgetId).setWidgetText(widgetText)
 
         // It is the responsibility of the configuration activity to update the app widget
@@ -40,7 +40,7 @@ class JideWidgetConfigureActivity : Activity() {
         setResult(RESULT_CANCELED)
 
         setContentView(R.layout.jide_widget_configure)
-        appWidgetText = findViewById<View>(R.id.widget_text) as EditText
+        frontFieldText = findViewById<View>(R.id.configure_frontfield) as EditText
         findViewById<View>(R.id.add_button).setOnClickListener(onClickListener)
 
         // Find the widget id from the intent.
