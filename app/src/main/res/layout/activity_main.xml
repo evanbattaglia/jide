@@ -7,10 +7,10 @@
     tools:context=".MainActivity">
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/run_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Run"
+        android:text="@string/run_button"
         app:layout_constraintBottom_toTopOf="@+id/testButton"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="161dp" />

@@ -8,9 +8,8 @@ import android.widget.Toast
 
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.e("AlarmReceiver", "let's rock this party");
-        // Put here YOUR code.
-        Toast.makeText(context, "Alarm !!!!!!!!!!", Toast.LENGTH_LONG).show() // I don't think this actually works
+        Log.e("AlarmReceiver", "Jide setting wallpaper!!!");
+        Toast.makeText(context, "Jide setting wallpaper!", Toast.LENGTH_LONG).show()
         WallpaperSetter.setWallpaper(context!!)
     }
 }

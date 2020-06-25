@@ -9,4 +9,5 @@
     <string name="widget_bad_button">Bad</string>
     <string name="widget_back_button"><![CDATA[<]]></string>
     <string name="configure_deck">Deck:</string>
+    <string name="run_button">Setup Automatic Wallpaper</string>
 </resources>
