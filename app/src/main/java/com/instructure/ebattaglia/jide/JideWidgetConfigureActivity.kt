@@ -3,9 +3,12 @@ package com.instructure.ebattaglia.jide
 import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
+import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.jide_widget_configure.*
 
 /**
@@ -13,6 +16,35 @@ import kotlinx.android.synthetic.main.jide_widget_configure.*
  */
 class JideWidgetConfigureActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
+
+    companion object {
+        const val GET_ANKI_PERMISSIONS = 1
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                            permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            GET_ANKI_PERMISSIONS -> {
+                if ((grantResults.isNotEmpty() &&
+                            grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    finishSetup()
+                } else {
+                    Toast.makeText(this, "Need Anki access permissions to add widget", Toast.LENGTH_LONG).show()
+                    finish()
+                }
+            }
+        }
+    }
+    private fun finishSetup() {
+        add_button.setOnClickListener(onClickListener)
+
+        // Fill in decks spinner
+        val decks : List<AnkiApi.Deck> = AnkiApi.getAllDecks(this)
+        val spinnerAdapter = ArrayAdapter<AnkiApi.Deck>(this, android.R.layout.simple_spinner_dropdown_item, decks)
+        configure_deck_spinner.adapter = spinnerAdapter
+        //  spinner.setOnItemSelectedListener(this); // TODO maybe field names spinners? with optional text override?
+    }
+
     private var onClickListener = View.OnClickListener {
         val context = this@JideWidgetConfigureActivity
 
@@ -43,15 +75,12 @@ class JideWidgetConfigureActivity : Activity() {
         setResult(RESULT_CANCELED)
 
         setContentView(R.layout.jide_widget_configure)
-        findViewById<View>(R.id.add_button).setOnClickListener(onClickListener)
-
-        // Fill in decks spinner
-        val decks : List<AnkiApi.Deck> = AnkiApi.getAllDecks(this)
-        val spinnerAdapter = ArrayAdapter<AnkiApi.Deck>(this, android.R.layout.simple_spinner_item, decks)
-        // TODO: ^ maybe try R.layout.simple_spinner_dropdown_item
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        configure_deck_spinner.adapter = spinnerAdapter
-        //    spinner.setOnItemSelectedListener(this); // TODO maybe field names spinners? with optional text override?
+        // Need permissions before we can show configuration activity (need to fill in deck names)
+        // TODO check permissions and skip if already have permissions
+        requestPermissions(
+            arrayOf("com.ichi2.anki.permission.READ_WRITE_DATABASE"),
+            MainActivity.GET_ANKI_PERMISSIONS
+        )
 
         // Find the widget id from the intent.
         val intent = intent
@@ -61,7 +90,6 @@ class JideWidgetConfigureActivity : Activity() {
                 AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID
             )
         }
-
         // If this activity was started with an intent without an app widget ID, finish with an error.
         if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
             finish()

@@ -22,9 +22,6 @@ import android.graphics.Bitmap
 import android.text.Html
 import android.text.StaticLayout
 import android.text.TextPaint
-import androidx.core.app.ComponentActivity.ExtraData
-import androidx.core.content.ContextCompat.getSystemService
-import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import android.text.Layout
 
 
@@ -59,18 +56,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         testButton.setOnClickListener {
+            // TODO need to put this somewhere
             requestPermissions(arrayOf("com.ichi2.anki.permission.READ_WRITE_DATABASE"), GET_ANKI_PERMISSIONS)
         }
     }
 
     //I have the permission now, not sure if still need to request it
     fun doit() {
-        requestPermissions(
-            arrayOf(
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            // may atually need write???
-            ), GET_PERMISSIONS
-        )
+        requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), GET_PERMISSIONS)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
