@@ -5,27 +5,28 @@ import android.appwidget.AppWidgetManager
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.EditText
+import android.widget.ArrayAdapter
+import kotlinx.android.synthetic.main.jide_widget_configure.*
 
 /**
  * The configuration screen for the [JideWidget] AppWidget.
  */
 class JideWidgetConfigureActivity : Activity() {
     private var appWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID
-    private lateinit var frontFieldText: EditText
-    private lateinit var backFieldText: EditText
     private var onClickListener = View.OnClickListener {
         val context = this@JideWidgetConfigureActivity
 
-        // When the button is clicked, store the string locally
-        val frontFieldText = frontFieldText.text.toString()
-        val backFieldText = backFieldText.text.toString()
-        JideWidgetPreferences(context, appWidgetId).setNoteFieldNames(frontFieldText, backFieldText)
+        // Store prefs
+        val prefs = JideWidgetPreferences(context, appWidgetId)
+        val frontField = configure_frontfield.text.toString()
+        val backField = configure_backfield.text.toString()
+        val deck = configure_deck_spinner.selectedItem as AnkiApi.Deck
+        prefs.setNoteFieldNames(frontField, backField)
+        prefs.setDeckId(deck.id)
 
         // Have to run this on our own the first time after configuring
         val appWidgetManager = AppWidgetManager.getInstance(context)
         JideWidget.updateAppWidget(context, appWidgetManager, appWidgetId)
-        //updateAppWidget(context, appWidgetManager, appWidgetId)
 
         // Make sure we pass back the original appWidgetId
         val resultValue = Intent()
@@ -42,9 +43,15 @@ class JideWidgetConfigureActivity : Activity() {
         setResult(RESULT_CANCELED)
 
         setContentView(R.layout.jide_widget_configure)
-        frontFieldText = findViewById<View>(R.id.configure_frontfield) as EditText
-        backFieldText = findViewById<View>(R.id.configure_backfield) as EditText
         findViewById<View>(R.id.add_button).setOnClickListener(onClickListener)
+
+        // Fill in decks spinner
+        val decks : List<AnkiApi.Deck> = AnkiApi.getAllDecks(this)
+        val spinnerAdapter = ArrayAdapter<AnkiApi.Deck>(this, android.R.layout.simple_spinner_item, decks)
+        // TODO: ^ maybe try R.layout.simple_spinner_dropdown_item
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        configure_deck_spinner.adapter = spinnerAdapter
+        //    spinner.setOnItemSelectedListener(this); // TODO maybe field names spinners? with optional text override?
 
         // Find the widget id from the intent.
         val intent = intent

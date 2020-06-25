@@ -8,7 +8,9 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.util.Log
 import android.net.Uri
+import android.text.Html
 import android.view.View
+import androidx.core.text.HtmlCompat
 
 // TODO put these somewhere else
 private val SHOW_ANSWER = "SHOW_ANSWER"
@@ -27,7 +29,8 @@ class JideWidget : AppWidgetProvider() {
         private fun showAnswer(context: Context, appWidgetId: Int) {
             val views = RemoteViews(context.packageName, R.layout.jide_widget)
             val prefs = JideWidgetPreferences(context, appWidgetId)
-            views.setTextViewText(R.id.widget_text, prefs.getCurrentBackText())
+            val text = prefs.getCurrentBackText()
+            views.setTextViewText(R.id.widget_text, Html.fromHtml(text, HtmlCompat.FROM_HTML_MODE_LEGACY))
             views.setViewVisibility(R.id.widget_good_button, View.VISIBLE)
             views.setViewVisibility(R.id.widget_bad_button, View.VISIBLE)
             views.setViewVisibility(R.id.widget_back_button, View.VISIBLE)
@@ -49,14 +52,11 @@ class JideWidget : AppWidgetProvider() {
             if ("".equals(frontFieldName)) {
                 views.setTextViewText(R.id.widget_text, "not configured")
             } else {
-                Log.d(
-                    TAG,
-                    "AnkiApi.getDueCard(context, ${prefs.getFrontFieldName()}, ${prefs.getBackFieldName()})"
-                )
                 val card =
-                    AnkiApi.getDueCard(context, prefs.getFrontFieldName(), prefs.getBackFieldName())
+                    AnkiApi.getDueCard(context, prefs.getDeckId(), prefs.getFrontFieldName(), prefs.getBackFieldName())
                 prefs.setCurrentCard(card.back, card.noteId, card.cardOrd)
-                views.setTextViewText(R.id.widget_text, card.front)
+                // TODO: maybe an option to strip formatting
+                views.setTextViewText(R.id.widget_text, Html.fromHtml(card.front, HtmlCompat.FROM_HTML_MODE_LEGACY))
                 views.setViewVisibility(R.id.widget_good_button, View.GONE)
                 views.setViewVisibility(R.id.widget_bad_button, View.GONE)
                 views.setViewVisibility(R.id.widget_back_button, View.GONE)

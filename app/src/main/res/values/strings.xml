@@ -8,4 +8,5 @@
     <string name="widget_good_button">Good</string>
     <string name="widget_bad_button">Bad</string>
     <string name="widget_back_button"><![CDATA[<]]></string>
+    <string name="configure_deck">Deck:</string>
 </resources>

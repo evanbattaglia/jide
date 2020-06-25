@@ -18,22 +18,31 @@ object AnkiApi {
     const val EASE_1 = 1
     const val EASE_2 = 2
 
-    private fun getCurrentDeckId(cr: ContentResolver) : Long {
-        val cursor = cr.query(FlashCardsContract.Deck.CONTENT_SELECTED_URI, null, null, null, null)
-        cursor.moveToFirst()
-        val deckId = cursor.getLong(cursor.getColumnIndex(FlashCardsContract.Deck.DECK_ID))
-        cursor.close()
-        return deckId
+    data class Deck(val name: String, val id: Long) {
+        override fun toString() = name
     }
 
-    fun getDueCard(context: Context, frontFieldName: String, backFieldName: String) : Card {
+    fun getAllDecks(context: Context) : List<Deck> {
+        val cr = context.contentResolver
+        val cursor = cr.query(FlashCardsContract.Deck.CONTENT_ALL_URI, null, null, null, null)
+        val list = (1 .. cursor.count).map {
+            cursor.moveToNext()
+            val name = cursor.getString(cursor.getColumnIndex(FlashCardsContract.Deck.DECK_NAME))
+            val id = cursor.getLong(cursor.getColumnIndex(FlashCardsContract.Deck.DECK_ID))
+            Deck(name, id)
+        }
+        cursor.close()
+        return list
+    }
+
+    fun getDueCard(context: Context, deckId: Long, frontFieldName: String, backFieldName: String) : Card {
+        Log.d(TAG, "getDueCard deckId=$deckId, frontField=$frontFieldName, backField=$backFieldName")
+
         val cr = context.contentResolver
         var cursor: Cursor
 
-        val deckId = getCurrentDeckId(cr)
-
         // TODO simplify, this is very verbose...
-        cursor = cr.query(FlashCardsContract.ReviewInfo.CONTENT_URI, null, "limit=?,deckId=?", arrayOf("1", deckId.toString()), null)
+        cursor = cr.query(FlashCardsContract.ReviewInfo.CONTENT_URI, null, "limit=?,deckID=?", arrayOf("1", deckId.toString()), null)
         cursor.moveToFirst()
         val noteId = cursor.getLong(cursor.getColumnIndex(FlashCardsContract.ReviewInfo.NOTE_ID))
         val cardOrd = cursor.getInt(cursor.getColumnIndex(FlashCardsContract.ReviewInfo.CARD_ORD))

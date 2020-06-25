@@ -8,6 +8,8 @@ class JideWidgetPreferences(context: Context, appWidgetId: Int) {
         private const val TAG = "JideWidgetPreferences"
 
         private const val SHARED_PREFERENCES_NAMESPACE = "widget_"
+
+        private const val DECK_ID = "deck_id"
         private const val FRONT_FIELD = "front_field"
         private const val BACK_FIELD = "back_field"
 
@@ -24,12 +26,19 @@ class JideWidgetPreferences(context: Context, appWidgetId: Int) {
     }
     val prefs = context.getSharedPreferences(sharedPrefsName(appWidgetId), 0)
 
+    fun setDeckId(deckId: Long) {
+        val edit = prefs.edit()
+        edit.putLong(DECK_ID, deckId)
+        edit.apply()
+    }
+
+    fun getDeckId() = prefs.getLong(DECK_ID, -1)
+
     fun setNoteFieldNames(frontField: String, backField: String) {
         Log.d(TAG, "SetNoteFieldNames: $frontField, $backField")
         val edit = prefs.edit()
         edit.putString(FRONT_FIELD, frontField)
         edit.putString(BACK_FIELD, backField)
-
         edit.apply()
     }
 
