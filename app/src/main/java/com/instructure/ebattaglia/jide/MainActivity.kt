@@ -11,7 +11,6 @@ import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import android.Manifest
 import android.content.pm.PackageManager
-import android.preference.PreferenceManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
 
@@ -22,14 +21,14 @@ class MainActivity : AppCompatActivity() {
         const val GET_ANKI_PERMISSIONS = 1
     }
 
-    fun setAlarm() {
-        Log.d("MainActivity", "setup alarm")
+    fun setAlarm(frequencyMinutes: Int) {
+        Log.d(TAG, "setting up alarm, frequency=$frequencyMinutes minutes")
         val context = applicationContext
         val intent = Intent(context, AlarmReceiver::class.java)
         val pi = PendingIntent.getBroadcast(context, 0,  intent, PendingIntent.FLAG_UPDATE_CURRENT)
         val am = getSystemService(Context.ALARM_SERVICE) as AlarmManager
         // make interval a lot bigger
-        val interval = 1 * /*hour*/ 60 * /*minute*/ 60000L
+        val interval = frequencyMinutes * 60000L
         am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 5, interval, pi)
     }
 
@@ -55,9 +54,10 @@ class MainActivity : AppCompatActivity() {
                             grantResults[0] == PackageManager.PERMISSION_GRANTED)
                 ) {
                     // Click "setup" button
-                    savePreferences()
+                    val frequencyMinutes = wallpaper_frequency.text.toString().toIntOrNull() ?: JideWallpaperPreferences.DEFAULT_FREQUENCY_MINUTES
+                    savePreferences(frequencyMinutes)
                     WallpaperSetter.setWallpaper(applicationContext)
-                    setAlarm()
+                    setAlarm(frequencyMinutes)
                 } else {
                     Toast.makeText(this, "Need permissions", Toast.LENGTH_LONG).show()
                 }
@@ -77,6 +77,7 @@ class MainActivity : AppCompatActivity() {
                     wallpaper_launcher_firstfield.setText(prefs.launcherFirstField())
                     wallpaper_launcher_secondfield.setText(prefs.launcherSecondField())
                     wallpaper_same_lockscreen_launcher_checkbox.isChecked = prefs.lockscreenLauncherSame()
+                    wallpaper_frequency.setText(prefs.frequencyMinutes().toString())
                     val deckId = prefs.deckId()
                     wallpaper_deck_spinner.setSelection(decks.indexOfFirst { it.id == deckId })
                 } else {
@@ -87,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun savePreferences() {
+    private fun savePreferences(frequencyMinutes: Int) {
         val deck = wallpaper_deck_spinner.selectedItem as AnkiApi.Deck
         JideWallpaperPreferences(applicationContext).set(
             deckId=deck.id,
@@ -95,7 +96,8 @@ class MainActivity : AppCompatActivity() {
             lockscreenSecondField=wallpaper_lockscreen_secondfield.text.toString(),
             lockscreenLauncherSame=wallpaper_same_lockscreen_launcher_checkbox.isChecked,
             launcherFirstField=wallpaper_launcher_firstfield.text.toString(),
-            launcherSecondField=wallpaper_launcher_secondfield.text.toString()
+            launcherSecondField=wallpaper_launcher_secondfield.text.toString(),
+            frequencyMinutes=frequencyMinutes
         )
     }
 }
