@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Jide</string>
     <string name="configure">Configure Jide Widget</string>
-    <string name="configure2">Cards from the current Anki deck will be used; however, the card templates will be ignored, showing only one field on the front and one field on the back.</string>
+    <string name="configure2">To help accommodate the limited space of a widget, you can optionally override the card template used and pick out just one field for the front or back; the card type from the deck is still used internally for review/learning-tracking purposes.</string>
     <string name="add_widget">Add Widget</string>
     <string name="configure_frontfield">Field on front of card:</string>
     <string name="configure_backfield">Field on back of card:</string>
@@ -19,6 +19,7 @@
     <string name="wallpaper_frequency">Change frequency (minutes):</string>
     <string name="not_configured">not configured</string>
     <string name="no_available_card">[no available card]</string>
+    <string name="strip_html_formatting_switch">Strip HTML Formatting</string>
     <string-array name="wallpaper_frequency_units">
         <item name="hours">Hours</item>
         <item name="minutes">Minutes</item>

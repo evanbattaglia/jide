@@ -18,6 +18,9 @@ class JideWidgetPreferences(context: Context, appWidgetId: Int) {
         private const val NOTE_ID = "note_id"
         private const val CARD_ORD = "card_ord"
 
+        private const val STRIP_HTML_FORMATTING = "strip_html_formatting"
+
+
         fun delete(context: Context, appWidgetId: Int) {
             context.deleteSharedPreferences(sharedPrefsName(appWidgetId))
         }
@@ -26,24 +29,26 @@ class JideWidgetPreferences(context: Context, appWidgetId: Int) {
     }
     val prefs = context.getSharedPreferences(sharedPrefsName(appWidgetId), 0)
 
-    fun setDeckId(deckId: Long) {
+    fun setConfiguration(
+        deckId: Long,
+        frontField: String,
+        backField: String,
+        stripHtmlFormatting: Boolean
+    ) {
+        Log.d(TAG, "setConfiguration: $deckId, $frontField, $backField, $stripHtmlFormatting")
         val edit = prefs.edit()
         edit.putLong(DECK_ID, deckId)
+        edit.putString(FRONT_FIELD, frontField)
+        edit.putString(BACK_FIELD, backField)
+        edit.putBoolean(STRIP_HTML_FORMATTING, stripHtmlFormatting)
         edit.apply()
     }
 
     fun getDeckId() = prefs.getLong(DECK_ID, -1)
 
-    fun setNoteFieldNames(frontField: String, backField: String) {
-        Log.d(TAG, "SetNoteFieldNames: $frontField, $backField")
-        val edit = prefs.edit()
-        edit.putString(FRONT_FIELD, frontField)
-        edit.putString(BACK_FIELD, backField)
-        edit.apply()
-    }
-
     fun getFrontFieldName() = prefs.getString(FRONT_FIELD, "")
     fun getBackFieldName() = prefs.getString(BACK_FIELD, "")
+    fun getStripHtmlFormatting() = prefs.getBoolean(STRIP_HTML_FORMATTING, true)
 
     fun setCurrentCard(backText: String, noteId: Long, cardOrd: Int) {
         Log.d(TAG, "SetCurrentCard: $backText, $noteId, $cardOrd")

@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.jide_widget_configure.*
 
 /**
@@ -52,9 +51,9 @@ class JideWidgetConfigureActivity : Activity() {
         val prefs = JideWidgetPreferences(context, appWidgetId)
         val frontField = configure_frontfield.text.toString()
         val backField = configure_backfield.text.toString()
+        val stripHtmlFormatting = configure_strip_html_formatting_switch.isChecked
         val deck = configure_deck_spinner.selectedItem as AnkiApi.Deck
-        prefs.setNoteFieldNames(frontField, backField)
-        prefs.setDeckId(deck.id)
+        prefs.setConfiguration(deck.id, frontField, backField, stripHtmlFormatting)
 
         // Have to run this on our own the first time after configuring
         val appWidgetManager = AppWidgetManager.getInstance(context)

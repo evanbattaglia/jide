@@ -28,6 +28,7 @@ class JideWallpaperPreferences(context: Context) {
 
     // TODO: this whole class is really verbose and boilerplate...
     // should investigate better ways of doing this, such as using ViewModels and stuff
+    // optionally, make naming consiste3nt with JideWidgetPreferences (getDeckId() etc)
     fun set(
         deckId: Long, lockscreenFirstField: String, lockscreenSecondField: String,
         lockscreenLauncherSame: Boolean, launcherFirstField: String, launcherSecondField: String,

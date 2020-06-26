@@ -57,6 +57,13 @@
         android:layout_height="wrap_content"
         android:inputType="text" />
 
+    <Switch
+        android:id="@+id/configure_strip_html_formatting_switch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/strip_html_formatting_switch" />
+
     <Button
         android:id="@+id/add_button"
         android:layout_width="wrap_content"

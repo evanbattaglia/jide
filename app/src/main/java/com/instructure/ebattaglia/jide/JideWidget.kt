@@ -29,7 +29,7 @@ class JideWidget : AppWidgetProvider() {
         private fun showAnswer(context: Context, appWidgetId: Int) {
             val views = RemoteViews(context.packageName, R.layout.jide_widget)
             val prefs = JideWidgetPreferences(context, appWidgetId)
-            setWidgetText(views, prefs.getCurrentBackText())
+            setWidgetText(views, prefs.getCurrentBackText(), prefs.getStripHtmlFormatting())
             views.setViewVisibility(R.id.widget_good_button, View.VISIBLE)
             views.setViewVisibility(R.id.widget_bad_button, View.VISIBLE)
             views.setViewVisibility(R.id.widget_back_button, View.VISIBLE)
@@ -45,31 +45,29 @@ class JideWidget : AppWidgetProvider() {
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }
 
-        private fun setWidgetText(views: RemoteViews, html: String) {
+        private fun setWidgetText(views: RemoteViews, html: String, stripHtml: Boolean) {
             val text = Html.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY)
-            // TODO: maybe an option to strip formatting
-
+            val textOnly = text.toString()
             // Work around an Android bug that splits lines mid-word when text size is autosized
-            val maxLines = text.toString().trim().split("\\s+".toRegex()).size
+            val maxLines = textOnly.trim().split("\\s+".toRegex()).size
             views.setInt(R.id.widget_text, "setMaxLines", maxLines)
-            views.setTextViewText(R.id.widget_text, text)
+            if (stripHtml) {
+                views.setTextViewText(R.id.widget_text, textOnly)
+            } else {
+                views.setTextViewText(R.id.widget_text, text)
+            }
         }
 
         private fun showQuestion(views: RemoteViews, context: Context, appWidgetId: Int) {
             val prefs = JideWidgetPreferences(context, appWidgetId)
-            val frontFieldName = prefs.getFrontFieldName()
-            if ("".equals(frontFieldName)) {
-                setWidgetText(views, context.getString(R.string.not_configured))
-            } else {
-                val card =
-                    AnkiApi.getDueCard(context, prefs.getDeckId(), prefs.getFrontFieldName(), prefs.getBackFieldName())
-                prefs.setCurrentCard(card.back, card.noteId, card.cardOrd)
-                setWidgetText(views, card.front)
+            val card =
+                AnkiApi.getDueCard(context, prefs.getDeckId(), prefs.getFrontFieldName(), prefs.getBackFieldName())
+            prefs.setCurrentCard(card.back, card.noteId, card.cardOrd)
+            setWidgetText(views, card.front, prefs.getStripHtmlFormatting())
 
-                views.setViewVisibility(R.id.widget_good_button, View.GONE)
-                views.setViewVisibility(R.id.widget_bad_button, View.GONE)
-                views.setViewVisibility(R.id.widget_back_button, View.GONE)
-            }
+            views.setViewVisibility(R.id.widget_good_button, View.GONE)
+            views.setViewVisibility(R.id.widget_bad_button, View.GONE)
+            views.setViewVisibility(R.id.widget_back_button, View.GONE)
         }
 
         private fun respondCard(context: Context, appWidgetId: Int, ease: Int) {

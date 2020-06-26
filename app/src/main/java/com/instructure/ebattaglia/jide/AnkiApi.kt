@@ -40,6 +40,8 @@ object AnkiApi {
 
         val cr = context.contentResolver
         var cursor: Cursor
+        var front: String? = null
+        var back: String? = null
 
         // TODO simplify, this is all very verbose...
 
@@ -52,6 +54,33 @@ object AnkiApi {
         val noteId = cursor.getLong(cursor.getColumnIndex(FlashCardsContract.ReviewInfo.NOTE_ID))
         val cardOrd = cursor.getInt(cursor.getColumnIndex(FlashCardsContract.ReviewInfo.CARD_ORD))
         cursor.close()
+
+        val useCardForFront = frontFieldName.isNullOrBlank()
+        val useCardForBack = backFieldName.isNullOrBlank()
+        if (useCardForFront || useCardForBack) {
+            cursor = cr.query(
+                Uri.withAppendedPath(
+                    FlashCardsContract.Note.CONTENT_URI,
+                    noteId.toString() + "/cards/" + cardOrd
+                ),
+                arrayOf(
+                    FlashCardsContract.Card.QUESTION_SIMPLE,
+                    FlashCardsContract.Card.ANSWER_PURE
+                ), null, null, null
+            )
+            cursor.moveToFirst()
+            if (useCardForFront) {
+                front =
+                    cursor.getString(cursor.getColumnIndex(FlashCardsContract.Card.QUESTION_SIMPLE))
+            }
+            if (useCardForBack) {
+                back = cursor.getString(cursor.getColumnIndex(FlashCardsContract.Card.ANSWER_PURE))
+            }
+            cursor.close()
+            if (useCardForFront && useCardForBack) {
+                return Card(front!!, back!!, noteId, cardOrd)
+            }
+        }
 
         cursor = cr.query(
             Uri.withAppendedPath(FlashCardsContract.Note.CONTENT_URI, noteId.toString()),
@@ -68,7 +97,7 @@ object AnkiApi {
         val fieldNames = getModelFieldNames(context, modelId)
 
         var fieldIndex = fieldNames.indexOf(frontFieldName)
-        val front =
+        front =
             if (fieldIndex == -1) {
                 "<field $frontFieldName not found, available fields: ${fieldNames.joinToString(", ")}>"
             } else {
@@ -76,7 +105,7 @@ object AnkiApi {
             }
 
         fieldIndex = fieldNames.indexOf(backFieldName)
-        val back =
+        back =
             if (fieldIndex == -1) {
                 "<field $backFieldName not found, available fields: ${fieldNames.joinToString(", ")}>"
             } else {
