@@ -1,15 +1,10 @@
 package com.instructure.ebattaglia.jide
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.SystemClock
-import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 import android.Manifest
+import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -19,17 +14,6 @@ class MainActivity : AppCompatActivity() {
         const val TAG = "MainActivity"
         const val GET_PERMISSIONS = 0
         const val GET_ANKI_PERMISSIONS = 1
-    }
-
-    fun setAlarm(frequencyMinutes: Int) {
-        Log.d(TAG, "setting up alarm, frequency=$frequencyMinutes minutes")
-        val context = applicationContext
-        val intent = Intent(context, AlarmReceiver::class.java)
-        val pi = PendingIntent.getBroadcast(context, 0,  intent, PendingIntent.FLAG_UPDATE_CURRENT)
-        val am = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        // make interval a lot bigger
-        val interval = frequencyMinutes * 60000L
-        am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 5, interval, pi)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,7 +41,8 @@ class MainActivity : AppCompatActivity() {
                     val frequencyMinutes = wallpaper_frequency.text.toString().toIntOrNull() ?: JideWallpaperPreferences.DEFAULT_FREQUENCY_MINUTES
                     savePreferences(frequencyMinutes)
                     WallpaperSetter.setWallpaper(applicationContext)
-                    setAlarm(frequencyMinutes)
+                    BootReceiver.enable(applicationContext)
+                    AlarmReceiver.setAlarm(applicationContext, frequencyMinutes)
                 } else {
                     Toast.makeText(this, "Need permissions", Toast.LENGTH_LONG).show()
                 }
