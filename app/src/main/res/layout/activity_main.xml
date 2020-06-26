@@ -134,7 +134,7 @@
         app:layout_constraintBottom_toTopOf="@+id/testButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/numberPicker" />
+        app:layout_constraintTop_toBottomOf="@+id/wallpaper_frequency" />
 
     <Button
         android:id="@+id/testButton"
