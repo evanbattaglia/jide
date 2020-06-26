@@ -41,30 +41,35 @@ object AnkiApi {
         val cr = context.contentResolver
         var cursor: Cursor
 
-        // TODO simplify, this is very verbose...
+        // TODO simplify, this is all very verbose...
+
         cursor = cr.query(FlashCardsContract.ReviewInfo.CONTENT_URI, null, "limit=?,deckID=?", arrayOf("1", deckId.toString()), null)
+        if (cursor.count < 1) {
+            val noAvailCard = context.getString(R.string.no_available_card)
+            return Card(noAvailCard, noAvailCard, -1, -1)
+        }
         cursor.moveToFirst()
         val noteId = cursor.getLong(cursor.getColumnIndex(FlashCardsContract.ReviewInfo.NOTE_ID))
         val cardOrd = cursor.getInt(cursor.getColumnIndex(FlashCardsContract.ReviewInfo.CARD_ORD))
         cursor.close()
-        // TODO note not found
 
         cursor = cr.query(
             Uri.withAppendedPath(FlashCardsContract.Note.CONTENT_URI, noteId.toString()),
             arrayOf(FlashCardsContract.Note.FLDS, FlashCardsContract.Note.MID), null, null, null)
+        if (cursor.count < 1) {
+            return Card("[Error: Model ID not found]", "[Error: Model ID not found]", -1, -1)
+        }
         cursor.moveToFirst()
         val fields = cursor.getString(cursor.getColumnIndex(FlashCardsContract.Note.FLDS)).split(
             SEPARATOR_CHAR)
         val modelId = cursor.getLong(cursor.getColumnIndex(FlashCardsContract.Note.MID))
         cursor.close()
-        // TODO model ID not found
 
         val fieldNames = getModelFieldNames(context, modelId)
 
         var fieldIndex = fieldNames.indexOf(frontFieldName)
         val front =
             if (fieldIndex == -1) {
-                // TODO better error handling
                 "<field $frontFieldName not found, available fields: ${fieldNames.joinToString(", ")}>"
             } else {
                 fields[fieldIndex]

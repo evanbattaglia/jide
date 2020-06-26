@@ -19,7 +19,7 @@
         android:background="#09C"
         android:breakStrategy="high_quality"
         android:gravity="center"
-        android:hyphenationFrequency="none"
+        android:hyphenationFrequency="normal"
         android:textColor="#ffffff"
         android:textStyle="bold"
         tools:text="example question or answer" />

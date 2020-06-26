@@ -3,17 +3,12 @@ package com.instructure.ebattaglia.jide
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.os.Environment
-import android.text.Html
 import android.util.Log
-import androidx.core.text.HtmlCompat
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import kotlin.math.min
 
 object Anki {
     val ANKI_PATH = "/AnkiDroid/collection.anki2"
-
-    private fun stripHtml(text: String) =
-        Html.fromHtml(text, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
 
     fun getCardFields(context: Context, deckId: Long) : Map<String, String> {
         // TODO try SD card as well
@@ -24,7 +19,13 @@ object Anki {
 
         Log.e("Anki", "get from deck id = $deckId")
         val query = "select flds, mid from notes where id=(select nid from cards where did=${deckId} and queue >= 0 and queue <= 3 order by random() limit 1)"
-        val cursor = db.rawQuery(query, null)
+        var cursor = db.rawQuery(query, null)
+        if (cursor.count < 1) {
+            cursor.close()
+            val query = "select flds, mid from notes where id=(select nid from cards where did=${deckId} order by random() limit 1)"
+            cursor = db.rawQuery(query, null)
+        }
+        // TODO: if cursor.count is still 0, throw error, and catch it on the other side showing a blank card
         cursor.moveToFirst()
         val flds = cursor.getString(cursor.getColumnIndex("flds")).split(31.toChar())
         val mid = cursor.getLong(cursor.getColumnIndex("mid"))

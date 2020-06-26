@@ -74,11 +74,9 @@ object WallpaperSetter {
             fieldFromCard(cardFields, prefs.lockscreenFirstField()),
             fieldFromCard(cardFields, prefs.lockscreenSecondField()),
             true)
-        Log.e("the card is", cardFields["Hanzi"])
         if (!prefs.lockscreenLauncherSame()) {
             cardFields = Anki.getCardFields(context, prefs.deckId())
         }
-        Log.e("the card is2", cardFields["Hanzi"])
         setWallpaper(context,
             fieldFromCard(cardFields, prefs.launcherFirstField()),
             fieldFromCard(cardFields, prefs.launcherSecondField()),
