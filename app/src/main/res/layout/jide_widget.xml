@@ -1,4 +1,5 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,52 +9,55 @@
     <TextView
         android:id="@+id/widget_text"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_margin="8dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:gravity="center"
+        android:layout_weight="1"
+        android:autoSizeTextType="uniform"
         android:background="#09C"
-        tools:text="question/answer"
+        android:breakStrategy="high_quality"
+        android:gravity="center"
+        android:hyphenationFrequency="none"
         android:textColor="#ffffff"
-        android:textSize="48sp"
-        android:textStyle="bold" />
-    <!-- TODO make height max so can click anywhere in blue area, even if no text -->
-    <!--
-    TODO autosizing text. this doesn't really work ("EXAMPLE" gets turned into "EXAMPL\nE")
-    android:autoSizeTextType="uniform"
-    android:autoSizeMinTextSize="12sp"
-    android:autoSizeMaxTextSize="100sp"
-    android:autoSizeStepGranularity="2sp"
-    -->
+        android:textStyle="bold"
+        tools:text="example question or answer" />
 
-    <Button
-        android:id="@+id/widget_bad_button"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/widget_text"
-        android:backgroundTint="#B10E0E"
-        android:text="@string/widget_bad_button"
-        android:visibility="gone" />
+        android:layout_weight="0">
 
-    <Button
-        android:id="@+id/widget_good_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/widget_text"
-        android:layout_toEndOf="@id/widget_bad_button"
-        android:backgroundTint="#10CF12"
-        android:text="@string/widget_good_button"
-        android:visibility="gone" />
+        <Button
+            android:id="@+id/widget_bad_button"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#B10E0E"
+            android:text="@string/widget_bad_button"
+            android:visibility="gone"
+            tools:text="Bad" />
 
-    <Button
-        android:id="@+id/widget_back_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/widget_text"
-        android:layout_toEndOf="@id/widget_good_button"
-        android:backgroundTint="#DDDDDD"
-        android:text="@string/widget_back_button"
-        android:visibility="gone" />
+        <Button
+            android:id="@+id/widget_good_button"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#10CF12"
+            android:text="@string/widget_good_button"
+            android:visibility="gone"
+            tools:text="Good" />
 
-</RelativeLayout>
+        <Button
+            android:id="@+id/widget_back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="40dp"
+            android:backgroundTint="#DDDDDD"
+            android:text="@string/widget_back_button"
+            android:visibility="gone"
+            tools:text="&lt;" />
+    </LinearLayout>
+
+</LinearLayout>

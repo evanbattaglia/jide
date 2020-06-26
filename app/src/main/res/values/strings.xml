@@ -17,6 +17,7 @@
     <string name="wallpaper_launcher_secondfield">Launcher Second Field:</string>
     <string name="wallpaper_same_lockscreen_launcher">Always same note for lockscreen and launcher</string>
     <string name="wallpaper_frequency">Change frequency (minutes):</string>
+    <string name="not_configured">not configured</string>
     <string-array name="wallpaper_frequency_units">
         <item name="hours">Hours</item>
         <item name="minutes">Minutes</item>
