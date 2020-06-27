@@ -19,7 +19,17 @@ class BootReceiver : BroadcastReceiver() {
                 PackageManager.DONT_KILL_APP
             )
         }
+
+        fun disable(context: Context) {
+            val receiver = ComponentName(context, BootReceiver::class.java)
+            context.packageManager.setComponentEnabledSetting(
+                receiver,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+                PackageManager.DONT_KILL_APP
+            )
+        }
     }
+
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.i("BootReceive", "Booting up, setting alarm to change wallpaper")
         Toast.makeText(context, "Jide setting alarm for wallpaper!", Toast.LENGTH_LONG).show()

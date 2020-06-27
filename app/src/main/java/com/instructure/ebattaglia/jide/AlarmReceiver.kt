@@ -23,6 +23,14 @@ class AlarmReceiver : BroadcastReceiver() {
             am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime() + 5, interval, pi)
         }
 
+        fun stopAlarm(context: Context) {
+            Log.d(TAG, "deleting alarm")
+            val intent = Intent(context, AlarmReceiver::class.java)
+            val pi = PendingIntent.getBroadcast(context, 0,  intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            am.cancel(pi)
+        }
+
     }
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.e("AlarmReceiver", "Jide setting wallpaper!!!");

@@ -24,6 +24,7 @@
     <string name="use_note_fields_instead_of_card_templates">Use individual note fields instead of card templates</string>
     <string name="wallpaper_lockscreen_use_note_fields">Use note fields (not card templates) in lockscreen</string>
     <string name="wallpaper_launcher_use_note_fields">Use note fields (not card templates) in launcher</string>
+    <string name="stop_automatic_wallpaper">Stop automatic wallpaper</string>
     <string-array name="wallpaper_frequency_units">
         <item name="hours">Hours</item>
         <item name="minutes">Minutes</item>

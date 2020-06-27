@@ -25,6 +25,12 @@ class MainActivity : AppCompatActivity() {
             requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), GET_PERMISSIONS)
         }
 
+        stop_automatic_wallpaper.setOnClickListener {
+            BootReceiver.disable(applicationContext)
+            AlarmReceiver.stopAlarm(applicationContext)
+            Toast.makeText(this, "Stopped alarm", Toast.LENGTH_LONG).show()
+        }
+
         // TODO check first if really need permissions
         requestPermissions(arrayOf("com.ichi2.anki.permission.READ_WRITE_DATABASE"), GET_ANKI_PERMISSIONS)
     }
