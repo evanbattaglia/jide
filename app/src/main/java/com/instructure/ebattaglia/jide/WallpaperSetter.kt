@@ -3,15 +3,31 @@ package com.instructure.ebattaglia.jide
 import android.app.WallpaperManager
 import android.content.Context
 import android.graphics.*
+import android.text.Html
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
 import android.view.WindowManager
+import androidx.core.text.HtmlCompat
 
 object WallpaperSetter {
     val TAG = "WallpaperSetter"
 
-    private fun drawTextOnCanvas(canvas: Canvas, text: String, textColor: Int, gravity: Int, pctHeight: Float) {
+    // this handles multiple lines by breaking a string into each line and painting separately, using equal height
+    private fun drawTextOnCanvas(canvas: Canvas, textOrHtml: String, textColor: Int, gravity: Int, pctHeight: Float) {
+        val text = Html.fromHtml(textOrHtml, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
+        val texts = text.split("\n").map { it.trim() }.filter { it.length > 0 }
+        Log.e("drawTextOnCanvas", "text \"$text\" has ${texts.size} parts")
+
+        val heightOfEach = pctHeight / texts.size
+        for (i in texts.indices) {
+            val pctUpOrDown = i * heightOfEach
+            Log.e("drawTextOnCanvas", "drawing \"${texts[i]}\" at $pctUpOrDown")
+            drawTextOnCanvas(canvas, texts[i].trim(), textColor, gravity, heightOfEach, pctUpOrDown)
+        }
+    }
+
+    private fun drawTextOnCanvas(canvas: Canvas, text: String, textColor: Int, gravity: Int, pctHeight: Float, pctUpOrDown: Float) {
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
         var testTextSize = 100f
         paint.textSize = testTextSize
@@ -29,10 +45,12 @@ object WallpaperSetter {
             paint.getTextBounds(text, 0, text.length, bounds)
             // put bottom truly on the bottom, which depends on actual content
             // (descenders like "y" and "g" make it go lower)
-            canvas.drawText(text, canvas.width/2f, canvas.height - bounds.bottom.toFloat(), paint)
+            val y = canvas.height - bounds.bottom.toFloat() - pctUpOrDown * canvas.height
+            canvas.drawText(text, canvas.width/2f, y, paint)
         } else {
             // TOP
-            canvas.drawText(text,canvas.width/2f, -paint.ascent(), paint)
+            val y = -paint.ascent() + pctUpOrDown * canvas.height
+            canvas.drawText(text,canvas.width/2f, y, paint)
         }
     }
 
@@ -50,9 +68,16 @@ object WallpaperSetter {
         return image
     }
 
-    fun setWallpaper(context: Context, top: String, bottom: String, lockScreen: Boolean) {
+    fun setWallpaper(context: Context, note: Anki.Note, fieldNames: Anki.StringPair, useNoteFields: Boolean, lockScreen: Boolean) {
+        Log.e(TAG, "$lockScreen using useNoteFields=$useNoteFields")
+        val texts =
+            if (useNoteFields) {
+                Anki.getFieldsFromNote(context, note, fieldNames)
+            } else {
+                Anki.getCardTemplatesFromNote(context, note, fieldNames)
+            }
+        val (top, bottom) = texts
         val wm = WallpaperManager.getInstance(context)
-
         val bitmap = textAsBitmap(context, top, bottom)
         wm.setBitmap(bitmap, Rect(0, 0, bitmap.width, bitmap.height), true,
             if (lockScreen) WallpaperManager.FLAG_LOCK else WallpaperManager.FLAG_SYSTEM
@@ -68,19 +93,15 @@ object WallpaperSetter {
 
     fun setWallpaper(context: Context) {
         val prefs = JideWallpaperPreferences(context)
-        var cardFields = Anki.getCardFields(context, prefs.deckId())
+        var note = Anki.getRandomNote(prefs.deckId())
 
-        setWallpaper(context,
-            fieldFromCard(cardFields, prefs.lockscreenFirstField()),
-            fieldFromCard(cardFields, prefs.lockscreenSecondField()),
-            true)
+        val lockscreenFields = Anki.StringPair(prefs.lockscreenFirstField(), prefs.lockscreenSecondField())
+        setWallpaper(context, note, lockscreenFields, prefs.lockscreenUseNoteFields(), true)
         if (!prefs.lockscreenLauncherSame()) {
-            cardFields = Anki.getCardFields(context, prefs.deckId())
+            note = Anki.getRandomNote(prefs.deckId())
         }
-        setWallpaper(context,
-            fieldFromCard(cardFields, prefs.launcherFirstField()),
-            fieldFromCard(cardFields, prefs.launcherSecondField()),
-            false)
+        val launcherFields = Anki.StringPair(prefs.launcherFirstField(), prefs.launcherSecondField())
+        setWallpaper(context, note, launcherFields, prefs.launcherUseNoteFields(), false)
     }
 
 }

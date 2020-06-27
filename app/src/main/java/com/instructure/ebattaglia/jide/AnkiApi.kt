@@ -13,8 +13,8 @@ import com.ichi2.anki.FlashCardsContract
  */
 object AnkiApi {
     private const val TAG = "AnkiApi"
-    private const val SEPARATOR_CHAR = 31.toChar()
 
+    const val SEPARATOR_CHAR = 31.toChar()
     const val EASE_1 = 1
     const val EASE_2 = 2
 
@@ -95,11 +95,12 @@ object AnkiApi {
         return Card(front!!, back!!, extra, noteId, cardOrd)
     }
 
-    private fun getCardTemplateNameMap(cr: ContentResolver, noteId: Long) : Map<String, Int> {
+    fun getCardTemplateNameMap(cr: ContentResolver, noteId: Long) : Map<String, Int> {
         // Get model ID
         var cursor = cr.query(
             Uri.withAppendedPath(FlashCardsContract.Note.CONTENT_URI, noteId.toString()),
-            arrayOf(FlashCardsContract.Note.MID), null, null, null)
+            arrayOf(FlashCardsContract.Note.MID), null, null, null
+        )
         if (cursor.count < 1) {
             cursor.close()
             return mapOf()
@@ -108,9 +109,13 @@ object AnkiApi {
         val modelId = cursor.getLong(cursor.getColumnIndex(FlashCardsContract.Note.MID))
         cursor.close()
 
+        return getCardTemplateNameMapFromModelId(cr, modelId)
+    }
+
+    fun getCardTemplateNameMapFromModelId(cr: ContentResolver, modelId: Long) : Map<String, Int> {
         // Get card ord
         val result = mutableMapOf<String, Int>()
-        cursor = cr.query(
+        val cursor = cr.query(
             Uri.withAppendedPath(FlashCardsContract.Model.CONTENT_URI, "$modelId/templates"),
             null, null, null, null
         )
@@ -125,7 +130,7 @@ object AnkiApi {
         return result
     }
 
-    private fun getCardTemplateFrontBack(cr: ContentResolver, noteId: Long, templates: Map<String, Int>, templateName: String): Pair<String?, String?> {
+    fun getCardTemplateFrontBack(cr: ContentResolver, noteId: Long, templates: Map<String, Int>, templateName: String): Pair<String?, String?> {
         if (templates.containsKey(templateName)) {
             return getCardTemplateFrontBack(cr, noteId, templates[templateName]!!)
         } else {

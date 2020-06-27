@@ -57,11 +57,13 @@ class MainActivity : AppCompatActivity() {
 
                     // TODO: the right way with ViewModel, yada yada yada
                     val prefs = JideWallpaperPreferences(applicationContext)
+                    wallpaper_lockscreen_use_note_fields.isChecked = prefs.lockscreenUseNoteFields()
                     wallpaper_lockscreen_firstfield.setText(prefs.lockscreenFirstField())
                     wallpaper_lockscreen_secondfield.setText(prefs.lockscreenSecondField())
+                    wallpaper_same_lockscreen_launcher_checkbox.isChecked = prefs.lockscreenLauncherSame()
+                    wallpaper_launcher_use_note_fields.isChecked = prefs.launcherUseNoteFields()
                     wallpaper_launcher_firstfield.setText(prefs.launcherFirstField())
                     wallpaper_launcher_secondfield.setText(prefs.launcherSecondField())
-                    wallpaper_same_lockscreen_launcher_checkbox.isChecked = prefs.lockscreenLauncherSame()
                     wallpaper_frequency.setText(prefs.frequencyMinutes().toString())
                     val deckId = prefs.deckId()
                     wallpaper_deck_spinner.setSelection(decks.indexOfFirst { it.id == deckId })
@@ -77,9 +79,11 @@ class MainActivity : AppCompatActivity() {
         val deck = wallpaper_deck_spinner.selectedItem as AnkiApi.Deck
         JideWallpaperPreferences(applicationContext).set(
             deckId=deck.id,
+            lockscreenUseNoteFields=wallpaper_lockscreen_use_note_fields.isChecked,
             lockscreenFirstField=wallpaper_lockscreen_firstfield.text.toString(),
             lockscreenSecondField=wallpaper_lockscreen_secondfield.text.toString(),
             lockscreenLauncherSame=wallpaper_same_lockscreen_launcher_checkbox.isChecked,
+            launcherUseNoteFields=wallpaper_launcher_use_note_fields.isChecked,
             launcherFirstField=wallpaper_launcher_firstfield.text.toString(),
             launcherSecondField=wallpaper_launcher_secondfield.text.toString(),
             frequencyMinutes=frequencyMinutes
