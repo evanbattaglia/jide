@@ -87,7 +87,9 @@ object AnkiApi {
             val templates = getCardTemplateNameMap(cr, noteId)
             front = front ?: getCardTemplateFrontBack(cr, noteId, templates, frontFieldName).first
             back = back ?: getCardTemplateFrontBack(cr, noteId, templates, backFieldName).second
-            extraBackFieldName?.let { extra = getCardTemplateFrontBack(cr, noteId, templates, it).second }
+            if (!extraBackFieldName.isNullOrBlank()) {
+                extra = getCardTemplateFrontBack(cr, noteId, templates, extraBackFieldName).second
+            }
         }
 
         return Card(front!!, back!!, extra, noteId, cardOrd)
@@ -117,6 +119,7 @@ object AnkiApi {
             val name = cursor.getString(cursor.getColumnIndex(FlashCardsContract.CardTemplate.NAME))
             val cardOrd = cursor.getInt(cursor.getColumnIndex(FlashCardsContract.CardTemplate.ORD))
             result.put(name, cardOrd)
+            cursor.moveToNext()
         }
         cursor.close()
         return result
@@ -126,7 +129,7 @@ object AnkiApi {
         if (templates.containsKey(templateName)) {
             return getCardTemplateFrontBack(cr, noteId, templates[templateName]!!)
         } else {
-            val error = "[Error: unknown template $templateName. Available: ${templates.values.joinToString(", ")}"
+            val error = "[Error: unknown template $templateName. Available: ${templates.keys.joinToString(", ")}"
             return Pair(error, error)
         }
     }
@@ -149,7 +152,7 @@ object AnkiApi {
         return Pair(front, back)
     }
 
-    private fun getNoteFields(cr: ContentResolver, noteId: Long, fields: List<String>) : List<String?> {
+    private fun getNoteFields(cr: ContentResolver, noteId: Long, fieldNames: List<String>) : List<String?> {
         val cursor = cr.query(
             Uri.withAppendedPath(FlashCardsContract.Note.CONTENT_URI, noteId.toString()),
             arrayOf(FlashCardsContract.Note.FLDS, FlashCardsContract.Note.MID), null, null, null)
@@ -165,12 +168,12 @@ object AnkiApi {
 
         val allFieldNames = getModelFieldNames(cr, modelId)
         val result = mutableListOf<String?>()
-        for (field in fields) {
+        for (fieldName in fieldNames) {
             var fieldValue : String? = null
-            if (!field.isNullOrBlank()) {
-                val fieldIndex = allFieldNames.indexOf(field)
+            if (!fieldName.isNullOrBlank()) {
+                val fieldIndex = allFieldNames.indexOf(fieldName)
                 if (fieldIndex == -1) {
-                    fieldValue = "<field $field not found, available fields: ${allFieldNames.joinToString(", ")}>"
+                    fieldValue = "<field $fieldName not found, available fields: ${allFieldNames.joinToString(", ")}>"
                 } else {
                     fieldValue = fields[fieldIndex]
                 }

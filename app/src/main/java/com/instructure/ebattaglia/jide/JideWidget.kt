@@ -41,7 +41,7 @@ class JideWidget : AppWidgetProvider() {
                 prefs.setAnswerCurrentlyShown(false)
             }
 
-            setWidgetText(views, prefs.getCurrentBackText(), prefs.getStripHtmlFormatting())
+            setWidgetText(views, text!!, prefs.getStripHtmlFormatting())
             views.setViewVisibility(R.id.widget_good_button, View.VISIBLE)
             views.setViewVisibility(R.id.widget_bad_button, View.VISIBLE)
             views.setViewVisibility(R.id.widget_back_button, View.VISIBLE)
@@ -51,6 +51,8 @@ class JideWidget : AppWidgetProvider() {
         }
 
         private fun showQuestion(context: Context, appWidgetId: Int) {
+            val prefs = JideWidgetPreferences(context, appWidgetId)
+            prefs.setAnswerCurrentlyShown(false)
             val views = RemoteViews(context.packageName, R.layout.jide_widget)
             showQuestion(views, context, appWidgetId)
             val appWidgetManager = AppWidgetManager.getInstance(context)
