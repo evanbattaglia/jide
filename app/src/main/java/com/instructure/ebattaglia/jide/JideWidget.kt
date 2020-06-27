@@ -26,9 +26,21 @@ class JideWidget : AppWidgetProvider() {
     companion object {
         const val TAG = "JideWidget"
 
-        private fun showAnswer(context: Context, appWidgetId: Int) {
+        private fun showAnswerOrExtra(context: Context, appWidgetId: Int) {
             val views = RemoteViews(context.packageName, R.layout.jide_widget)
             val prefs = JideWidgetPreferences(context, appWidgetId)
+            var text : String? = null
+            if (prefs.getAnswerCurrentlyShown()) {
+                text = prefs.getCurrentExtraBackText()
+            }
+            if (text.isNullOrBlank()) {
+                text = prefs.getCurrentBackText()
+                prefs.setAnswerCurrentlyShown(true)
+            } else {
+                // Showing "extra" text
+                prefs.setAnswerCurrentlyShown(false)
+            }
+
             setWidgetText(views, prefs.getCurrentBackText(), prefs.getStripHtmlFormatting())
             views.setViewVisibility(R.id.widget_good_button, View.VISIBLE)
             views.setViewVisibility(R.id.widget_bad_button, View.VISIBLE)
@@ -61,8 +73,8 @@ class JideWidget : AppWidgetProvider() {
         private fun showQuestion(views: RemoteViews, context: Context, appWidgetId: Int) {
             val prefs = JideWidgetPreferences(context, appWidgetId)
             val card =
-                AnkiApi.getDueCard(context, prefs.getDeckId(), prefs.getFrontFieldName(), prefs.getBackFieldName())
-            prefs.setCurrentCard(card.back, card.noteId, card.cardOrd)
+                AnkiApi.getDueCard(context, prefs.getDeckId(), prefs.getUseNoteFields(), prefs.getFrontFieldName(), prefs.getBackFieldName(), prefs.getExtraBackFieldName())
+            prefs.setCurrentCard(card.back, card.extra, card.noteId, card.cardOrd)
             setWidgetText(views, card.front, prefs.getStripHtmlFormatting())
 
             views.setViewVisibility(R.id.widget_good_button, View.GONE)
@@ -141,7 +153,7 @@ class JideWidget : AppWidgetProvider() {
 
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
-            SHOW_ANSWER -> getAppWidgetId(intent)?.let { showAnswer(context, it) }
+            SHOW_ANSWER -> getAppWidgetId(intent)?.let { showAnswerOrExtra(context, it) }
             RESPOND_GOOD -> getAppWidgetId(intent)?.let { respondCard(context, it, AnkiApi.EASE_2) }
             RESPOND_BAD -> getAppWidgetId(intent)?.let { respondCard(context, it, AnkiApi.EASE_1) }
             BACK_BUTTON -> getAppWidgetId(intent)?.let { showQuestion(context, it) }

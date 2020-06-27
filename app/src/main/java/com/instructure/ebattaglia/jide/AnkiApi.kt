@@ -35,20 +35,31 @@ object AnkiApi {
         return list
     }
 
-    fun getDueCard(context: Context, deckId: Long, frontFieldName: String, backFieldName: String) : Card {
-        Log.d(TAG, "getDueCard deckId=$deckId, frontField=$frontFieldName, backField=$backFieldName")
+    fun getDueCard(context: Context, deckId: Long, useNoteFields: Boolean, frontFieldName: String, backFieldName: String, extraBackFieldName: String) : Card {
+        Log.d(
+            TAG,
+            "getDueCard deckId=$deckId, frontField=$frontFieldName, backField=$backFieldName"
+        )
 
         val cr = context.contentResolver
-        var cursor: Cursor
+        val cursor: Cursor
         var front: String? = null
         var back: String? = null
+        var extra: String? = null
 
         // TODO simplify, this is all very verbose...
 
-        cursor = cr.query(FlashCardsContract.ReviewInfo.CONTENT_URI, null, "limit=?,deckID=?", arrayOf("1", deckId.toString()), null)
+        cursor = cr.query(
+            FlashCardsContract.ReviewInfo.CONTENT_URI,
+            null,
+            "limit=?,deckID=?",
+            arrayOf("1", deckId.toString()),
+            null
+        )
         if (cursor.count < 1) {
             val noAvailCard = context.getString(R.string.no_available_card)
-            return Card(noAvailCard, noAvailCard, -1, -1)
+            cursor.close()
+            return Card(noAvailCard, noAvailCard, null, -1, -1)
         }
         cursor.moveToFirst()
         val noteId = cursor.getLong(cursor.getColumnIndex(FlashCardsContract.ReviewInfo.NOTE_ID))
@@ -58,35 +69,93 @@ object AnkiApi {
         val useCardForFront = frontFieldName.isNullOrBlank()
         val useCardForBack = backFieldName.isNullOrBlank()
         if (useCardForFront || useCardForBack) {
-            cursor = cr.query(
-                Uri.withAppendedPath(
-                    FlashCardsContract.Note.CONTENT_URI,
-                    noteId.toString() + "/cards/" + cardOrd
-                ),
-                arrayOf(
-                    FlashCardsContract.Card.QUESTION_SIMPLE,
-                    FlashCardsContract.Card.ANSWER_PURE
-                ), null, null, null
-            )
-            cursor.moveToFirst()
+            val (defaultTemplateFront, defaultTemplateBack) = getCardTemplateFrontBack(cr, noteId, cardOrd)
             if (useCardForFront) {
-                front =
-                    cursor.getString(cursor.getColumnIndex(FlashCardsContract.Card.QUESTION_SIMPLE))
+                front = defaultTemplateFront
             }
             if (useCardForBack) {
-                back = cursor.getString(cursor.getColumnIndex(FlashCardsContract.Card.ANSWER_PURE))
-            }
-            cursor.close()
-            if (useCardForFront && useCardForBack) {
-                return Card(front!!, back!!, noteId, cardOrd)
+                back = defaultTemplateBack
             }
         }
 
+        if (useNoteFields) {
+            val (noteFront, noteBack, noteExtra) = getNoteFields(cr, noteId, listOf(frontFieldName, backFieldName, extraBackFieldName))
+            front = front ?: noteFront
+            back = back ?: noteBack
+            extra = noteExtra
+        } else {
+            val templates = getCardTemplateNameMap(cr, noteId)
+            front = front ?: getCardTemplateFrontBack(cr, noteId, templates, frontFieldName).first
+            back = back ?: getCardTemplateFrontBack(cr, noteId, templates, backFieldName).second
+            extraBackFieldName?.let { extra = getCardTemplateFrontBack(cr, noteId, templates, it).second }
+        }
+
+        return Card(front!!, back!!, extra, noteId, cardOrd)
+    }
+
+    private fun getCardTemplateNameMap(cr: ContentResolver, noteId: Long) : Map<String, Int> {
+        // Get model ID
+        var cursor = cr.query(
+            Uri.withAppendedPath(FlashCardsContract.Note.CONTENT_URI, noteId.toString()),
+            arrayOf(FlashCardsContract.Note.MID), null, null, null)
+        if (cursor.count < 1) {
+            cursor.close()
+            return mapOf()
+        }
+        cursor.moveToFirst()
+        val modelId = cursor.getLong(cursor.getColumnIndex(FlashCardsContract.Note.MID))
+        cursor.close()
+
+        // Get card ord
+        val result = mutableMapOf<String, Int>()
         cursor = cr.query(
+            Uri.withAppendedPath(FlashCardsContract.Model.CONTENT_URI, "$modelId/templates"),
+            null, null, null, null
+        )
+        cursor.moveToFirst()
+        for (i in 0 until cursor.count) {
+            val name = cursor.getString(cursor.getColumnIndex(FlashCardsContract.CardTemplate.NAME))
+            val cardOrd = cursor.getInt(cursor.getColumnIndex(FlashCardsContract.CardTemplate.ORD))
+            result.put(name, cardOrd)
+        }
+        cursor.close()
+        return result
+    }
+
+    private fun getCardTemplateFrontBack(cr: ContentResolver, noteId: Long, templates: Map<String, Int>, templateName: String): Pair<String?, String?> {
+        if (templates.containsKey(templateName)) {
+            return getCardTemplateFrontBack(cr, noteId, templates[templateName]!!)
+        } else {
+            val error = "[Error: unknown template $templateName. Available: ${templates.values.joinToString(", ")}"
+            return Pair(error, error)
+        }
+    }
+
+    private fun getCardTemplateFrontBack(cr: ContentResolver, noteId: Long, cardOrd: Int): Pair<String?, String?> {
+        val cursor = cr.query(
+            Uri.withAppendedPath(
+                FlashCardsContract.Note.CONTENT_URI,
+                noteId.toString() + "/cards/" + cardOrd
+            ),
+            arrayOf(
+                FlashCardsContract.Card.QUESTION_SIMPLE,
+                FlashCardsContract.Card.ANSWER_PURE
+            ), null, null, null
+        )
+        cursor.moveToFirst()
+        val front = cursor.getString(cursor.getColumnIndex(FlashCardsContract.Card.QUESTION_SIMPLE))
+        val back = cursor.getString(cursor.getColumnIndex(FlashCardsContract.Card.ANSWER_PURE))
+        cursor.close()
+        return Pair(front, back)
+    }
+
+    private fun getNoteFields(cr: ContentResolver, noteId: Long, fields: List<String>) : List<String?> {
+        val cursor = cr.query(
             Uri.withAppendedPath(FlashCardsContract.Note.CONTENT_URI, noteId.toString()),
             arrayOf(FlashCardsContract.Note.FLDS, FlashCardsContract.Note.MID), null, null, null)
         if (cursor.count < 1) {
-            return Card("[Error: Model ID not found]", "[Error: Model ID not found]", -1, -1)
+            cursor.close()
+            return listOf("[Error: Note not found!]", "[Error: Note not found!]", null)
         }
         cursor.moveToFirst()
         val fields = cursor.getString(cursor.getColumnIndex(FlashCardsContract.Note.FLDS)).split(
@@ -94,28 +163,24 @@ object AnkiApi {
         val modelId = cursor.getLong(cursor.getColumnIndex(FlashCardsContract.Note.MID))
         cursor.close()
 
-        val fieldNames = getModelFieldNames(context, modelId)
-
-        var fieldIndex = fieldNames.indexOf(frontFieldName)
-        front =
-            if (fieldIndex == -1) {
-                "<field $frontFieldName not found, available fields: ${fieldNames.joinToString(", ")}>"
-            } else {
-                fields[fieldIndex]
+        val allFieldNames = getModelFieldNames(cr, modelId)
+        val result = mutableListOf<String?>()
+        for (field in fields) {
+            var fieldValue : String? = null
+            if (!field.isNullOrBlank()) {
+                val fieldIndex = allFieldNames.indexOf(field)
+                if (fieldIndex == -1) {
+                    fieldValue = "<field $field not found, available fields: ${allFieldNames.joinToString(", ")}>"
+                } else {
+                    fieldValue = fields[fieldIndex]
+                }
             }
-
-        fieldIndex = fieldNames.indexOf(backFieldName)
-        back =
-            if (fieldIndex == -1) {
-                "<field $backFieldName not found, available fields: ${fieldNames.joinToString(", ")}>"
-            } else {
-                fields[fieldIndex]
-            }
-
-        return Card(front, back, noteId, cardOrd)
+            result.add(fieldValue)
+        }
+        return result
     }
 
-    data class Card(val front: String, val back: String, val noteId: Long, val cardOrd: Int)
+    data class Card(val front: String, val back: String, val extra: String?, val noteId: Long, val cardOrd: Int)
 
     // TODO: pass in note ID and card ord to make sure we're not out of sync
     fun respondCard(context: Context, noteId: Long, cardOrd: Int, ease: Int, timeTaken: Long) {
@@ -130,12 +195,17 @@ object AnkiApi {
         cr.update(FlashCardsContract.ReviewInfo.CONTENT_URI, values, null, null)
     }
 
-    fun getModelFieldNames(context: Context, modelId: Long) : List<String> {
-        val cr = context.contentResolver
+    fun getModelFieldNames(context: Context, modelId: Long) = getModelFieldNames(context.contentResolver, modelId)
+
+    fun getModelFieldNames(cr: ContentResolver, modelId: Long) : List<String> {
         val cursor = cr.query(
             Uri.withAppendedPath(FlashCardsContract.Model.CONTENT_URI, modelId.toString()),
             arrayOf(FlashCardsContract.Model.FIELD_NAMES), null, null, null
         )
+        if (cursor.count == 0) {
+            cursor.close()
+            return listOf()
+        }
         cursor.moveToFirst()
         val fieldNames = cursor.getString(cursor.getColumnIndex(FlashCardsContract.Model.FIELD_NAMES)).split(
             SEPARATOR_CHAR)

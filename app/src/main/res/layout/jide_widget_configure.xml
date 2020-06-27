@@ -31,6 +31,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <Switch
+        android:id="@+id/configure_use_note_fields_instead_of_card_templates"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="@string/use_note_fields_instead_of_card_templates" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -53,6 +60,19 @@
 
     <EditText
         android:id="@+id/configure_backfield"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/configure_extra_backfield"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/configure_extra_backfield"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="text" />

@@ -49,11 +49,14 @@ class JideWidgetConfigureActivity : Activity() {
 
         // Store prefs
         val prefs = JideWidgetPreferences(context, appWidgetId)
+        val useNoteFields = configure_use_note_fields_instead_of_card_templates.isChecked
         val frontField = configure_frontfield.text.toString()
         val backField = configure_backfield.text.toString()
+        val extraBackField = configure_extra_backfield.text.toString()
         val stripHtmlFormatting = configure_strip_html_formatting_switch.isChecked
         val deck = configure_deck_spinner.selectedItem as AnkiApi.Deck
-        prefs.setConfiguration(deck.id, frontField, backField, stripHtmlFormatting)
+
+        prefs.setConfiguration(deck.id, useNoteFields, frontField, backField, extraBackField, stripHtmlFormatting)
 
         // Have to run this on our own the first time after configuring
         val appWidgetManager = AppWidgetManager.getInstance(context)
